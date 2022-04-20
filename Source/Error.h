@@ -31,3 +31,12 @@ public:
 	IllegalCharError(string details, LinePosition& pos);
 
 };
+
+class IllegalSyntaxError : public Error
+{
+public:
+
+	//Constructor
+	IllegalSyntaxError(string details, LinePosition& pos);
+
+};

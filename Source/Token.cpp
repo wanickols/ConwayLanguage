@@ -1,14 +1,19 @@
 #include "pch.h"
 #include "Token.h"
 
-Token::Token(tokenTypes type, int value) : type(type), value(value)
+//Int
+Token::Token(tokenTypes type, int value, int pos_start, int pos_end) : type(type), value(value), posStart(pos_start), posEnd(pos_end)
+{
+	if (!posEnd && posStart)
+		posEnd = posStart + 1;
+}
+
+//Float
+Token::Token(tokenTypes type, float value, int pos_start, int pos_end) : type(type), fvalue(value), posStart(pos_start), posEnd(pos_end)
 {
 }
 
-Token::Token(tokenTypes type, float value) : type(type), fvalue(value)
-{
-}
-
+//Repr
 std::string Token::Representation()
 {
 
@@ -31,7 +36,21 @@ std::string Token::Representation()
 	}
 	else if (fvalue != NULL)
 		rpr << ":" << fvalue;
-	rpr << " ";
 	return rpr.str();
 
+}
+
+tokenTypes Token::getType() const
+{
+	return type;
+}
+
+const int Token::getPosStart() const
+{
+	return posStart;
+}
+
+const int Token::getPosEnd() const
+{
+	return posEnd;
 }

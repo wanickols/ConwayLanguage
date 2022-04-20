@@ -24,3 +24,7 @@ string Error::as_string()
 IllegalCharError::IllegalCharError(string details, LinePosition& pos) : Error("Illegal Character", details, pos)
 {
 }
+
+IllegalSyntaxError::IllegalSyntaxError(string details, LinePosition& pos) : Error("Illegal Syntax", details, pos)
+{
+}

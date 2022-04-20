@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Lexer.h"
+#include "Parser.h"
 
 //Conways game of life
 /*
@@ -21,21 +22,45 @@ The abilitiy to start and stop the game
 The ability to set a number of runs (times game will continue until stop)
 */
 
-void run(Lexer& lexer);
+void run(string& text, string& fileName);
+//void PrintRun(vector<Token>& tokens, Parser& parser);
 
 int main() {
 
 	//Input
-	string text = "2 * 5";
+	string text = "1 + 2 * 3";
 	string fileName = "Custom Input";
+	
+	//Running
+	run(text, fileName);
+	 
+	return 0;
+}
+
+void run(string& text, string& fileName)
+{
+
+	vector<Token> tokens;
 
 	//Lexer
 	Lexer lexer(text, fileName);
+	//Generate Tokens
+	lexer.make_tokens();
 	
-	//Making Of Tokens
-	run(lexer);
-	vector<Token> tokens = lexer.getTokens();
+	tokens = lexer.getTokens();
 
+	Parser parser(tokens);
+	
+	
+	//Printing
+	cout << parser.parse();
+
+	//PrintRun(tokens, parser);
+}
+
+void PrintRun(vector<Token>& tokens, Parser& parser)
+{
+	
 
 	//Printing of tokens
 	for (int i = 0; i < tokens.size(); i++)
@@ -43,10 +68,5 @@ int main() {
 		cout << tokens.at(i).Representation();
 	}
 
-	return 0;
-}
-
-void run(Lexer& lexer)
-{
-	lexer.make_tokens();
+	cout << "\n";
 }

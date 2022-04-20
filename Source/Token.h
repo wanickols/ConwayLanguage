@@ -1,6 +1,5 @@
 #pragma once
 
-
 const enum tokenTypes
 {
 	T_PLUS = 0,
@@ -18,15 +17,24 @@ class Token
 {
 public:
 
-	Token(tokenTypes type, int value = NULL);
-	Token(tokenTypes type, float value = NULL);
+
+	Token(tokenTypes type, int value = NULL, int pos_start = NULL, int pos_end = NULL);
+	Token(tokenTypes type, float value = NULL, int pos_start = NULL, int pos_end = NULL);
 
 	std::string Representation();
 	
+	//Accessors
+	tokenTypes getType() const;
+	const int getPosStart() const;
+	const int getPosEnd() const;
 
 private:
 	tokenTypes type;
 	int value = NULL;
 	float fvalue = NULL;
+
+	int posStart;
+	int posEnd;
 };
+
 
