@@ -23,6 +23,13 @@ void Parser::advance()
 string Parser::parse()
 {
 	std::shared_ptr<Node> nodeP = expr();
+	if (currentToken->getType() != tokenTypes::T_EOF) 
+	{
+		string details = "Expected *, or +, or -, or /";
+		IllegalSyntaxError error(details, nodeP->getLinePosition());
+		CW_CORE_ERROR(error.as_string());
+	}
+
 	return nodeP->represent();
 
 }
@@ -39,6 +46,10 @@ std::shared_ptr<Node> Parser::factor()
 		return node;
 	}
 	else { //Error
+		
+		string details = "Expected Int Or Float";
+		IllegalSyntaxError error(details, currentToken->getPosStart());
+		CW_CORE_ERROR(error.as_string());
 		std::shared_ptr<Node> node = std::make_shared<EmptyNode>(*currentToken);
 		return node;
 	}
@@ -80,7 +91,7 @@ std::shared_ptr<Node> Parser::bin_op(std::function<std::shared_ptr<Node>()> func
 		
 		type = currentToken->getType();
 	}
-	
+
 	//returns final left tree
 	return left;
 

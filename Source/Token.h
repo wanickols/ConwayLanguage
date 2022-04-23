@@ -1,5 +1,7 @@
 #pragma once
 
+#include "LinePosition.h"
+
 const enum tokenTypes
 {
 	T_PLUS = 0,
@@ -9,32 +11,33 @@ const enum tokenTypes
 	T_LEFTPAR,
 	T_RIGHTPAR,
 	T_INT,
-	T_FLOAT
+	T_FLOAT,
+	T_EOF
 };
-
 
 class Token
 {
 public:
 
 
-	Token(tokenTypes type, int value = NULL, int pos_start = NULL, int pos_end = NULL);
-	Token(tokenTypes type, float value = NULL, int pos_start = NULL, int pos_end = NULL);
+	Token(tokenTypes type, int value = NULL, std::shared_ptr<LinePosition> pos_start = nullptr, std::shared_ptr<LinePosition> pos_end = nullptr);
+	Token(tokenTypes type, float value = NULL, std::shared_ptr<LinePosition> pos_start = nullptr, std::shared_ptr<LinePosition> pos_end = nullptr);
 
 	std::string Representation();
 	
 	//Accessors
 	tokenTypes getType() const;
-	const int getPosStart() const;
-	const int getPosEnd() const;
+	const std::shared_ptr<LinePosition> getPosStart() const;
+	const std::shared_ptr<LinePosition> getPosEnd() const;
 
 private:
 	tokenTypes type;
 	int value = NULL;
 	float fvalue = NULL;
+	string empt;
 
-	int posStart;
-	int posEnd;
+	LinePosition posStart;
+	LinePosition posEnd;
 };
 
 

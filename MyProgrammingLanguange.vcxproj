@@ -90,6 +90,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>$(SolutionDir)\Externals\spdlog\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -150,6 +151,7 @@
     <ClCompile Include="Source\Error.cpp" />
     <ClCompile Include="Source\Lexer.cpp" />
     <ClCompile Include="Source\LinePosition.cpp" />
+    <ClCompile Include="Source\Log.cpp" />
     <ClCompile Include="Source\Node.cpp" />
     <ClCompile Include="Source\Parser.cpp" />
     <ClCompile Include="Source\pch.cpp">
@@ -162,6 +164,7 @@
     <ClInclude Include="Source\Error.h" />
     <ClInclude Include="Source\Lexer.h" />
     <ClInclude Include="Source\LinePosition.h" />
+    <ClInclude Include="Source\Log.h" />
     <ClInclude Include="Source\Node.h" />
     <ClInclude Include="Source\Parser.h" />
     <ClInclude Include="Source\pch.h" />

@@ -26,6 +26,8 @@ private:
 	std::shared_ptr<vector<Node>> nodes;
 	unsigned int tok_idx;
 	Token* currentToken;
+	//int parseCounter;
+	//int binOpCounter;
 
 	std::shared_ptr<Node> bin_op(std::function<std::shared_ptr<Node>()>, tokenTypes op1, tokenTypes op2);
 };

@@ -10,6 +10,8 @@ public:
 	void Advance(const char& currentChar);
 	LinePosition copy();
 
+	void operator = (const LinePosition& rhs);
+
 	//Variables
 	int index; //current char number
 	int line; //current line number

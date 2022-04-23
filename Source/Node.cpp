@@ -14,6 +14,11 @@ tokenTypes Node::getTokenType() const
 	return this->tok.getType();
 }
 
+const std::shared_ptr<LinePosition> Node::getLinePosition() const
+{
+	return tok.getPosStart();
+}
+
 
 //=======Number Node==========
 NumberNode::NumberNode(Token& tok) : Node(tok)

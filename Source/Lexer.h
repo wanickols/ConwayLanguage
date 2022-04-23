@@ -18,12 +18,12 @@ public:
 	Token make_number(); //makes a number based on digits and dots
 	
 	//Accessors
-	const LinePosition& getPos() const; //returns pos
+	const std::shared_ptr<LinePosition> getPos() const; //returns pos
 	const vector<Token>& getTokens() const; //returns tokens after made
 
 private:
 	//Variables
-	LinePosition pos;
+	std::shared_ptr<LinePosition> pos;
 	std::string text;
 	char currentChar;
 	vector<Token> tokens;

@@ -23,12 +23,16 @@ The ability to set a number of runs (times game will continue until stop)
 */
 
 void run(string& text, string& fileName);
+bool Init();
 //void PrintRun(vector<Token>& tokens, Parser& parser);
 
 int main() {
 
-	//Input
-	string text = "1 + 2 * 3";
+	//Init
+	Init();
+
+	//Input (TDOO::Input From File) (TODO POST THAT:: Input from textbox) (maybe);
+	string text = "13 + 5 * 2";
 	string fileName = "Custom Input";
 	
 	//Running
@@ -56,6 +60,15 @@ void run(string& text, string& fileName)
 	cout << parser.parse();
 
 	//PrintRun(tokens, parser);
+}
+
+bool Init()
+{
+	//Logger
+	Conway::Log log;
+	log.Init();
+
+	return true;
 }
 
 void PrintRun(vector<Token>& tokens, Parser& parser)

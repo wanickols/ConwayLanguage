@@ -22,3 +22,11 @@ LinePosition LinePosition::copy()
 {
 	return LinePosition(index, line, column, fileName);
 }
+
+void LinePosition::operator=(const LinePosition& rhs)
+{
+	index = rhs.index;
+	column = rhs.column;
+	line = rhs.line;
+	fileName = rhs.fileName;
+}

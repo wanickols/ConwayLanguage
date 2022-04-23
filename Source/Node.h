@@ -14,6 +14,8 @@ public:
 
 	//Accessors
 	tokenTypes getTokenType() const;
+
+	const std::shared_ptr<LinePosition> getLinePosition() const;
 protected:
 	Token tok;
 };

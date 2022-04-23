@@ -1,23 +1,49 @@
 #include "pch.h"
 #include "Token.h"
+#include "LinePosition.h"
 
 //Int
-Token::Token(tokenTypes type, int value, int pos_start, int pos_end) : type(type), value(value), posStart(pos_start), posEnd(pos_end)
+Token::Token(tokenTypes type, int value, std::shared_ptr<LinePosition> pos_start, std::shared_ptr<LinePosition> pos_end) : type(type), value(value), empt("nothing"), posStart(0, 0, 0, empt), posEnd(0, 0, 0, empt)
 {
-	if (!posEnd && posStart)
-		posEnd = posStart + 1;
+
+	if (pos_start != nullptr) {
+		posStart = *pos_start;
+
+		if (pos_end == nullptr) {
+			posStart = posStart;
+			++posEnd.column;
+		}
+		else 
+		{
+			posEnd = *pos_end;
+		}
+	}
+
 }
 
 //Float
-Token::Token(tokenTypes type, float value, int pos_start, int pos_end) : type(type), fvalue(value), posStart(pos_start), posEnd(pos_end)
+Token::Token(tokenTypes type, float value, std::shared_ptr<LinePosition> pos_start, std::shared_ptr<LinePosition> pos_end) : type(type), fvalue(value), posStart(0, 0, 0, empt), posEnd(0, 0, 0, empt)
 {
+	
+	if (pos_start != nullptr) {
+		posStart = *pos_start;
+
+		if (pos_end == nullptr) {
+			posStart = posStart;
+			++posEnd.column;
+		}
+		else
+		{
+			posEnd = *pos_end;
+		}
+	}
 }
 
 //Repr
 std::string Token::Representation()
 {
 
-	const char* typesString[8]
+	const char* typesString[9]
 	{
 		"PLUS",
 		"MINUS",
@@ -26,7 +52,8 @@ std::string Token::Representation()
 		"LEFTPAR",
 		"RIGHTPAR",
 		"INT",
-		"FLOAT"
+		"FLOAT",
+		"EOF"
 	};
 
 	std::stringstream rpr;
@@ -45,12 +72,12 @@ tokenTypes Token::getType() const
 	return type;
 }
 
-const int Token::getPosStart() const
+const std::shared_ptr<LinePosition> Token::getPosStart() const
 {
-	return posStart;
+	return std::make_shared<LinePosition>(posStart);
 }
 
-const int Token::getPosEnd() const
+const std::shared_ptr<LinePosition> Token::getPosEnd() const
 {
-	return posEnd;
+	return std::make_shared<LinePosition>(posStart);
 }
