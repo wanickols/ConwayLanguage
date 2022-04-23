@@ -3,7 +3,7 @@
 
 
 //=======Base Node==========
-Node::Node(Token& tok) : tok(tok)
+Node::Node(Token& tok, nodeTypes type) : tok(tok), type(type)
 {
 
 }
@@ -14,6 +14,11 @@ tokenTypes Node::getTokenType() const
 	return this->tok.getType();
 }
 
+const nodeTypes Node::getNodeType() const
+{
+	return type;
+}
+
 const std::shared_ptr<LinePosition> Node::getLinePosition() const
 {
 	return tok.getPosStart();
@@ -21,7 +26,7 @@ const std::shared_ptr<LinePosition> Node::getLinePosition() const
 
 
 //=======Number Node==========
-NumberNode::NumberNode(Token& tok) : Node(tok)
+NumberNode::NumberNode(Token& tok) : Node(tok, nodeTypes::NT_NumberNode)
 {
 }
 
@@ -32,7 +37,7 @@ string NumberNode::represent()
 
 
 //=======BinOp Node==========
-BinOpNode::BinOpNode(std::shared_ptr<Node> left_node, Token& op_tok, std::shared_ptr<Node> right_node) : Node(op_tok), leftNode(left_node), rightNode(right_node)
+BinOpNode::BinOpNode(std::shared_ptr<Node> left_node, Token& op_tok, std::shared_ptr<Node> right_node) : Node(op_tok, nodeTypes::NT_BinOpNode), leftNode(left_node), rightNode(right_node)
 {
 }
 
@@ -40,5 +45,16 @@ string BinOpNode::represent()
 {
 	stringstream ss;
 	ss << '(' << leftNode->represent() << ", " << tok.Representation() << ", " << rightNode->represent() << ")";
+	return ss.str();
+}
+
+UnaryOpNode::UnaryOpNode(Token& op_tok, std::shared_ptr<Node> other_node) : Node(op_tok, nodeTypes::NT_BinOpNode), otherNode(other_node)
+{
+}
+
+string UnaryOpNode::represent()
+{
+	stringstream ss;
+	ss << tok.Representation() << " " << otherNode->represent();
 	return ss.str();
 }

@@ -32,7 +32,7 @@ int main() {
 	Init();
 
 	//Input (TDOO::Input From File) (TODO POST THAT:: Input from textbox) (maybe);
-	string text = "13 + 5 * 2";
+	string text = "-((2 + 3) * 2)";
 	string fileName = "Custom Input";
 	
 	//Running

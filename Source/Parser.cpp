@@ -35,17 +35,52 @@ string Parser::parse()
 }
 
 // : INT|FLOAT
+// : (PLUS|MINUS) factor
+// : LPAREN expr RPAREN
 std::shared_ptr<Node> Parser::factor()
 {
-	
+
 	const tokenTypes& type = currentToken->getType();
 
-	if (type == tokenTypes::T_INT || type == tokenTypes::T_FLOAT) {
+	//Unary Op
+	if (type == tokenTypes::T_PLUS || type == tokenTypes::T_MINUS) 
+	{
+		Token* t = currentToken;
+		advance();
+		std::shared_ptr<Node> Fnode = factor();
+		std::shared_ptr<UnaryOpNode> uNode = std::make_shared<UnaryOpNode>(*t, Fnode);
+	
+		return uNode;
+	}
+	//Parenthesis
+	else if (type == T_LEFTPAR) 
+	{
+		advance();
+		std::shared_ptr<Node> node = expr();
+		//Close Parenthesis
+		if (currentToken->getType() == T_RIGHTPAR)
+		{
+			advance();
+			return node;
+		}
+		//Error
+		else 
+		{
+			string details = "Expected a )";
+			IllegalSyntaxError error(details, currentToken->getPosStart());
+			CW_CORE_ERROR(error.as_string());
+			std::shared_ptr<Node> node = std::make_shared<EmptyNode>(*currentToken);
+			return node;
+		}
+	}
+	//Binary Op
+	else if (type == tokenTypes::T_INT || type == tokenTypes::T_FLOAT) {
 		std::shared_ptr<Node> node = std::make_shared<NumberNode>(*currentToken);
 		advance();
 		return node;
 	}
-	else { //Error
+	//Error
+	else { 
 		
 		string details = "Expected Int Or Float";
 		IllegalSyntaxError error(details, currentToken->getPosStart());
