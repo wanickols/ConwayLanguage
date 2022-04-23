@@ -30,10 +30,11 @@ public:
 	const std::shared_ptr<LinePosition> getPosStart() const;
 	const std::shared_ptr<LinePosition> getPosEnd() const;
 
-private:
-	tokenTypes type;
+	//Variables
 	int value = NULL;
 	float fvalue = NULL;
+private:
+	tokenTypes type;
 	string empt;
 
 	LinePosition posStart;

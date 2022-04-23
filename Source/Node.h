@@ -23,6 +23,7 @@ public:
 	//Accessors
 	tokenTypes getTokenType() const;
 	const nodeTypes getNodeType() const;
+	const Token& getToken() const;
 
 	const std::shared_ptr<LinePosition> getLinePosition() const;
 protected:
@@ -56,7 +57,7 @@ public:
 	BinOpNode(std::shared_ptr<Node> left_node, Token& op_tok, std::shared_ptr<Node> right_node);
 
 	string represent() override;
-private:
+
 	std::shared_ptr<Node> leftNode;
 	std::shared_ptr<Node> rightNode;
 };
@@ -68,7 +69,6 @@ public:
 
 	string represent() override;
 
-private:
 	std::shared_ptr<Node> otherNode;
 };
 

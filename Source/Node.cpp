@@ -19,6 +19,11 @@ const nodeTypes Node::getNodeType() const
 	return type;
 }
 
+const Token& Node::getToken() const
+{
+	return tok;
+}
+
 const std::shared_ptr<LinePosition> Node::getLinePosition() const
 {
 	return tok.getPosStart();
@@ -48,7 +53,7 @@ string BinOpNode::represent()
 	return ss.str();
 }
 
-UnaryOpNode::UnaryOpNode(Token& op_tok, std::shared_ptr<Node> other_node) : Node(op_tok, nodeTypes::NT_BinOpNode), otherNode(other_node)
+UnaryOpNode::UnaryOpNode(Token& op_tok, std::shared_ptr<Node> other_node) : Node(op_tok, nodeTypes::NT_UnaryOpNode), otherNode(other_node)
 {
 }
 

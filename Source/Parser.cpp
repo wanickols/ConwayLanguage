@@ -20,7 +20,7 @@ void Parser::advance()
 	++tok_idx;
 }
 
-string Parser::parse()
+std::shared_ptr<Node> Parser::parse()
 {
 	std::shared_ptr<Node> nodeP = expr();
 	if (currentToken->getType() != tokenTypes::T_EOF) 
@@ -30,7 +30,7 @@ string Parser::parse()
 		CW_CORE_ERROR(error.as_string());
 	}
 
-	return nodeP->represent();
+	return nodeP;
 
 }
 

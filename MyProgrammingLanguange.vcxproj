@@ -154,6 +154,7 @@
     <ClCompile Include="Source\LinePosition.cpp" />
     <ClCompile Include="Source\Log.cpp" />
     <ClCompile Include="Source\Node.cpp" />
+    <ClCompile Include="Source\Number.cpp" />
     <ClCompile Include="Source\Parser.cpp" />
     <ClCompile Include="Source\pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -168,6 +169,7 @@
     <ClInclude Include="Source\LinePosition.h" />
     <ClInclude Include="Source\Log.h" />
     <ClInclude Include="Source\Node.h" />
+    <ClInclude Include="Source\Number.h" />
     <ClInclude Include="Source\Parser.h" />
     <ClInclude Include="Source\pch.h" />
     <ClInclude Include="Source\Token.h" />

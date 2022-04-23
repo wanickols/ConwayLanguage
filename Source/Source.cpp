@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "Lexer.h"
 #include "Parser.h"
+#include "Interpreter.h"
+#include "Number.h"
 
 //Conways game of life
 /*
@@ -32,7 +34,7 @@ int main() {
 	Init();
 
 	//Input (TDOO::Input From File) (TODO POST THAT:: Input from textbox) (maybe);
-	string text = "-((2 + 3) * 2)";
+	string text = "-6*(5+2) * 1.1";
 	string fileName = "Custom Input";
 	
 	//Running
@@ -56,8 +58,15 @@ void run(string& text, string& fileName)
 	Parser parser(tokens);
 	
 	
+
+	std::shared_ptr<Node> parsedNode = parser.parse();
 	//Printing
-	cout << parser.parse();
+	
+
+	//Interpretation
+	Interpreter interper;
+
+	cout << interper.visit(parsedNode).getValue();
 
 	//PrintRun(tokens, parser);
 }

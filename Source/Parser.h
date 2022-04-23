@@ -14,7 +14,7 @@ public:
 
 	void advance();
 
-	string parse();
+	std::shared_ptr<Node> parse();
 
 	//Parser Definitions
 	std::shared_ptr<Node> factor();
