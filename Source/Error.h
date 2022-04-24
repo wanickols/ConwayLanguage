@@ -3,6 +3,7 @@
 using namespace std;
 
 class LinePosition;
+class Context;
 
 class Error
 {
@@ -12,10 +13,10 @@ public:
 	Error(string error_name, string details, std::shared_ptr<LinePosition> pos);
 
 	//Functions
-	string as_string();
+	virtual string as_string();
 	
 
-private:
+protected:
 	//Variables
 	string details;
 	string errorName;
@@ -39,4 +40,16 @@ public:
 	//Constructor
 	IllegalSyntaxError(string details, std::shared_ptr<LinePosition> pos);
 
+};
+
+class RTError : public Error
+{
+public:
+
+	//Constructor
+	RTError(string details, std::shared_ptr<LinePosition> pos, std::shared_ptr<Context> context);
+	string as_string() override;
+
+private:
+	std::shared_ptr<Context> context;
 };

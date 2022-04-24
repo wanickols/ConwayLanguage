@@ -9,11 +9,17 @@ namespace Conway {
 	void Log::Init()
 	{
 		//Set pattern for log format
-		spdlog::set_pattern("%^[T] %n: %v%$");
+		spdlog::set_pattern("%v%$");
 
-		s_CoreLogger = spdlog::stderr_color_mt("ConwayGame");
+		s_CoreLogger = spdlog::stderr_color_mt("Conway Game");
+		
 		//Set level for output
 		s_CoreLogger->set_level(spdlog::level::trace);
 
+	}
+
+	void Log::setLevel(spdlog::level::level_enum level)
+	{
+		s_CoreLogger->set_level(level);
 	}
 }

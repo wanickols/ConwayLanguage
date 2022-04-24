@@ -11,6 +11,8 @@ namespace Conway {
 
 		inline static std::shared_ptr<spdlog::logger>& GetCoreLogger() { return s_CoreLogger; };
 
+		void setLevel(spdlog::level::level_enum level);
+
 	private:
 		static std::shared_ptr<spdlog::logger> s_CoreLogger;
 	};

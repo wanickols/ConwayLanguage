@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Error.h"
 #include "LinePosition.h"
-
+#include "Context.h"
 
 //##########ERROR##############
 
@@ -14,7 +14,7 @@ Error::Error(string error_name, string details, std::shared_ptr<LinePosition> po
 string Error::as_string()
 {
 	stringstream ss;
-	ss << errorName << ": " << details << " | File Name: \"" << pos->fileName << "\" --> Line: " << pos->line + 1 << " Column: " << pos->column << "\n";
+	ss << errorName << ": " << details << pos->represent();
 	return ss.str();
 }
 
@@ -27,4 +27,15 @@ IllegalCharError::IllegalCharError(string details, std::shared_ptr<LinePosition>
 
 IllegalSyntaxError::IllegalSyntaxError(string details, std::shared_ptr<LinePosition> pos) : Error("Illegal Syntax", details, pos)
 {
+}
+
+RTError::RTError(string details, std::shared_ptr<LinePosition> pos, std::shared_ptr<Context> context) : Error("Runtime Error", details, pos), context(context)
+{
+}
+
+string RTError::as_string()
+{
+	stringstream ss;
+	ss << errorName << ": " << details << "Context: " << context->represent() << pos->represent();
+	return ss.str();
 }

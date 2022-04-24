@@ -10,6 +10,8 @@ public:
 	void Advance(const char& currentChar);
 	LinePosition copy();
 
+	const string represent();
+
 	void operator = (const LinePosition& rhs);
 
 	//Variables

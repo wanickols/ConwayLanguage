@@ -2,6 +2,12 @@
 #include "Interpreter.h"
 #include "Number.h"
 
+
+Interpreter::Interpreter(std::shared_ptr<Context> context) : context(context)
+{
+
+}
+
 Number Interpreter::visit(std::shared_ptr<Node> node)
 {
 	switch (node->getNodeType())
@@ -39,7 +45,7 @@ Number Interpreter::visit(std::shared_ptr<Node> node)
 	case(nodeTypes::NT_EmptyNode):
 	default:
 		no_visit_method(node);
-		return Number(-1);
+		return Number(-1, node->getLinePosition(), context);
 		break;
 	}
 
@@ -56,11 +62,11 @@ Number Interpreter::visit(NumberNode& numberNode)
 
 		//CW_CORE_TRACE("found number node {}", val);
 		CW_CORE_WARN("There is no floats in this game! :D");
-		return Number((int)val);
+		return Number((int)val, numberNode.getLinePosition(),context);
 	}
 	else {
 		int val = numberNode.getToken().value;
-		Number num(val);
+		Number num(val, numberNode.getLinePosition(), context);
 
 
 		//CW_CORE_TRACE("found number node {}", val);
@@ -89,7 +95,7 @@ Number Interpreter::visit(BinOpNode& binOpNode)
 	Number left = visit(binOpNode.leftNode);
 	Number right = visit(binOpNode.rightNode);
 
-	Number result(0);
+	Number result(0, binOpNode.getLinePosition(), context);
 	switch (binOpNode.getTokenType()) 
 	{
 	case(tokenTypes::T_PLUS):
@@ -112,5 +118,5 @@ Number Interpreter::visit(BinOpNode& binOpNode)
 
 void Interpreter::no_visit_method(std::shared_ptr<Node> node)
 {
-	CW_CORE_ERROR("No Visit Method Defined for {}", node->represent());
+	CW_CORE_ERROR("No Visit Method Defined for " + node->represent());
 }

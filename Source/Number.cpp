@@ -1,7 +1,9 @@
 #include "pch.h"
 #include "Number.h"
+#include "LinePosition.h"
+#include "Context.h"
 
-Number::Number(int value) : value(value)
+Number::Number(int value, std::shared_ptr<LinePosition> pos, std::shared_ptr<Context> context) : value(value), position(pos), context(context)
 {
 }
 
@@ -23,6 +25,13 @@ int Number::multed_by(Number other)
 
 int Number::dived_by(Number other)
 {
+	if (other.value == 0) {
+		string details = "Division by 0! See {}/0 ";
+		RTError error(details, position, context);
+
+		CW_CORE_ERROR( error.as_string(), value);
+		other.value = 1;
+	}
 	return value/other.value;
 }
 
@@ -34,4 +43,9 @@ const int Number::getValue() const
 void Number::setValue(const int val)
 {
 	value = val;
+}
+
+const std::shared_ptr<LinePosition> Number::getPosition() const
+{
+	return position;
 }

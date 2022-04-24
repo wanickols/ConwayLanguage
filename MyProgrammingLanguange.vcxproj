@@ -148,6 +148,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Context.cpp" />
     <ClCompile Include="Source\Error.cpp" />
     <ClCompile Include="Source\Interpreter.cpp" />
     <ClCompile Include="Source\Lexer.cpp" />
@@ -163,6 +164,7 @@
     <ClCompile Include="Source\Token.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Context.h" />
     <ClInclude Include="Source\Error.h" />
     <ClInclude Include="Source\Interpreter.h" />
     <ClInclude Include="Source\Lexer.h" />

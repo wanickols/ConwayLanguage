@@ -23,6 +23,13 @@ LinePosition LinePosition::copy()
 	return LinePosition(index, line, column, fileName);
 }
 
+const string LinePosition::represent()
+{
+	stringstream ss;
+	ss << " | " << "Filename: \"" << fileName << "\" -->  Line:" << line + 1 << ", " << "Column:" << column;
+	return ss.str();
+}
+
 void LinePosition::operator=(const LinePosition& rhs)
 {
 	index = rhs.index;
