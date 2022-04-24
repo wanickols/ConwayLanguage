@@ -23,6 +23,13 @@ int Number::multed_by(Number other)
 	return value * other.value;
 }
 
+int Number::power_of(Number other)
+{
+	if(other.value < 0)
+		CW_CORE_WARN("Negative Powers will be 0 with Ints");
+	return std::pow(value, other.value);
+}
+
 int Number::dived_by(Number other)
 {
 	if (other.value == 0) {

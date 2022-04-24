@@ -12,6 +12,7 @@ const enum tokenTypes
 	T_RIGHTPAR,
 	T_INT,
 	T_FLOAT,
+	T_POW,
 	T_EOF
 };
 

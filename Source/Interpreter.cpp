@@ -110,6 +110,9 @@ Number Interpreter::visit(BinOpNode& binOpNode)
 	case(tokenTypes::T_MULTIPLY):
 		result.setValue(left.multed_by(right));
 		break;
+	case(tokenTypes::T_POW):
+		result.setValue(left.power_of(right));
+		break;
 	}
 
 	return result;

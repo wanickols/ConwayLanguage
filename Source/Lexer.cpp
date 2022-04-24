@@ -63,6 +63,9 @@ void Lexer::make_tokens()
 			case ')':
 				tokens.push_back(Token(tokenTypes::T_RIGHTPAR, NULL, pos));
 				break;
+			case '^':
+				tokens.push_back(Token(tokenTypes::T_POW, NULL, pos));
+				break;
 			default:
 				char c = currentChar;
 				stringstream ss;

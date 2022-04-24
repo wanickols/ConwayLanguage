@@ -11,6 +11,7 @@ public:
 	int added_to(Number other);
 	int subbed_by(Number other);
 	int multed_by(Number other);
+	int power_of(Number other);
 	int dived_by(Number other);
 
 	const int getValue() const;

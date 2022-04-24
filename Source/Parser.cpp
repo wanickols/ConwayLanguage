@@ -35,25 +35,14 @@ std::shared_ptr<Node> Parser::parse()
 }
 
 // : INT|FLOAT
-// : (PLUS|MINUS) factor
 // : LPAREN expr RPAREN
-std::shared_ptr<Node> Parser::factor()
+std::shared_ptr<Node> Parser::atom()
 {
-
 	const tokenTypes& type = currentToken->getType();
 
-	//Unary Op
-	if (type == tokenTypes::T_PLUS || type == tokenTypes::T_MINUS) 
-	{
-		Token* t = currentToken;
-		advance();
-		std::shared_ptr<Node> Fnode = factor();
-		std::shared_ptr<UnaryOpNode> uNode = std::make_shared<UnaryOpNode>(*t, Fnode);
-	
-		return uNode;
-	}
+
 	//Parenthesis
-	else if (type == T_LEFTPAR) 
+	if (type == T_LEFTPAR)
 	{
 		advance();
 		std::shared_ptr<Node> node = expr();
@@ -64,7 +53,7 @@ std::shared_ptr<Node> Parser::factor()
 			return node;
 		}
 		//Error
-		else 
+		else
 		{
 			string details = "Expected a )";
 			IllegalSyntaxError error(details, currentToken->getPosStart());
@@ -80,13 +69,44 @@ std::shared_ptr<Node> Parser::factor()
 		return node;
 	}
 	//Error
-	else { 
-		
-		string details = "Expected Int Or Float";
+	else {
+
+		string details = "Expected a '(', '+', '-', INT, or FLOAT";
 		IllegalSyntaxError error(details, currentToken->getPosStart());
 		CW_CORE_ERROR(error.as_string());
 		std::shared_ptr<Node> node = std::make_shared<EmptyNode>(*currentToken);
 		return node;
+	}
+}
+
+
+// : atom (POW factor)*
+std::shared_ptr<Node> Parser::power()
+{
+	return  bin_op([this]() { return this->atom(); }, tokenTypes::T_POW, NULL, [this]() { return this->factor(); });
+}
+
+
+// : (PLUS|MINUS) factor
+// : power
+std::shared_ptr<Node> Parser::factor()
+{
+	const tokenTypes& type = currentToken->getType();
+	
+	//Unary Op
+	if (type == tokenTypes::T_PLUS || type == tokenTypes::T_MINUS)
+	{
+		Token* t = currentToken;
+		advance();
+		std::shared_ptr<Node> Fnode = factor();
+		std::shared_ptr<UnaryOpNode> uNode = std::make_shared<UnaryOpNode>(*t, Fnode);
+
+		return uNode;
+	}
+	else 
+	{
+		//The reason we can do this is because power calls atom by defualt. If it has a POW it will also do that, if not it atom will be return instead untouched and this will cover it
+		return power();
 	}
 		
 	
@@ -104,31 +124,39 @@ std::shared_ptr<Node> Parser::expr()
 	return bin_op([this]() { return this->term(); }, tokenTypes::T_PLUS, tokenTypes::T_MINUS);
 }
 
-// : func ((op1 | op2) func)*
-std::shared_ptr<Node> Parser::bin_op(std::function<std::shared_ptr<Node>()> func, tokenTypes op1, tokenTypes op2)
-{
 
-	std::shared_ptr<Node> left = func();
+// : func ((op1 | op2) func)*
+std::shared_ptr<Node> Parser::bin_op(std::function<std::shared_ptr<Node>()> func_a, tokenTypes op1, int op2, std::function<std::shared_ptr<Node>()> func_b)
+{
+	if (func_b == NULL)
+		func_b = func_a;
+
+
+	std::shared_ptr<Node> left = func_a();
 
 	tokenTypes type = currentToken->getType();
+	if (type != NULL) {
+		while (type == op1 || type == op2)
+		{
+			//Incrementing
+			Token* op_tok = currentToken;
+			advance();
+			//setting right
+			std::shared_ptr<Node> right = func_b();
+			//recursively chaining left to make a tree
+			std::shared_ptr<BinOpNode> newNodePtr = std::make_shared<BinOpNode>(left, *op_tok, right);
 
-	while (type == op1 || type == op2)
+			left = newNodePtr;
+
+			type = currentToken->getType();
+		}
+	}
+	else 
 	{
-		//Incrementing
-		Token* op_tok = currentToken;
-		advance();
-		//setting right
-		std::shared_ptr<Node> right = func();
-		//recursively chaining left to make a tree
-		std::shared_ptr<BinOpNode> newNodePtr = std::make_shared<BinOpNode>(left, *op_tok, right);
-
-		left = newNodePtr;
-		
-		type = currentToken->getType();
+		CW_CORE_ERROR("Token Type was NULL");
 	}
 
 	//returns final left tree
 	return left;
 
 }
-

@@ -43,7 +43,7 @@ Token::Token(tokenTypes type, float value, std::shared_ptr<LinePosition> pos_sta
 std::string Token::Representation()
 {
 
-	const char* typesString[9]
+	const char* typesString[10]
 	{
 		"PLUS",
 		"MINUS",
@@ -53,6 +53,7 @@ std::string Token::Representation()
 		"RIGHTPAR",
 		"INT",
 		"FLOAT",
+		"TOPOWEROF",
 		"EOF"
 	};
 
