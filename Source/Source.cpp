@@ -23,6 +23,7 @@ What do we need.
 The ability to make a class cell with the ability to be set alive or dead. 
 The ability to set gridsize
 The abilitiy to start and stop the game
+The ability to set a time of each run (speed)
 The ability to set a number of runs (times game will continue until stop)
 */
 
@@ -40,7 +41,6 @@ int main() {
 	//Input
 	std::shared_ptr<string> text = userInput();
 	string fileName = "Custom Input";
-	
 	
 
 	//Running

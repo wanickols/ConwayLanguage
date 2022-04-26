@@ -83,7 +83,8 @@ std::shared_ptr<Node> Parser::atom()
 // : atom (POW factor)*
 std::shared_ptr<Node> Parser::power()
 {
-	return  bin_op([this]() { return this->atom(); }, tokenTypes::T_POW, NULL, [this]() { return this->factor(); });
+	//Two pows redudant, but can't pass in null or -1 without unforseen consequences. 
+	return  bin_op([this]() { return this->atom(); }, tokenTypes::T_POW, tokenTypes::T_POW, [this]() { return this->factor(); });
 }
 
 
@@ -135,7 +136,6 @@ std::shared_ptr<Node> Parser::bin_op(std::function<std::shared_ptr<Node>()> func
 	std::shared_ptr<Node> left = func_a();
 
 	tokenTypes type = currentToken->getType();
-	if (type != NULL) {
 		while (type == op1 || type == op2)
 		{
 			//Incrementing
@@ -150,11 +150,7 @@ std::shared_ptr<Node> Parser::bin_op(std::function<std::shared_ptr<Node>()> func
 
 			type = currentToken->getType();
 		}
-	}
-	else 
-	{
-		CW_CORE_ERROR("Token Type was NULL");
-	}
+	
 
 	//returns final left tree
 	return left;
