@@ -8,7 +8,7 @@
 Parser::Parser(vector<Token>& tokens) : tokens(tokens), tok_idx(0), currentToken(nullptr)
 {
 	std::unique_ptr<vector<Node>> nodes = std::make_unique<vector<Node>>();
-	advance();
+	
 }
 
 void Parser::advance()
@@ -22,6 +22,7 @@ void Parser::advance()
 
 std::shared_ptr<Node> Parser::parse()
 {
+	advance();
 	std::shared_ptr<Node> nodeP = expr();
 	if (currentToken->getType() != tokenTypes::T_EOF) 
 	{
@@ -34,15 +35,36 @@ std::shared_ptr<Node> Parser::parse()
 
 }
 
-// : INT|FLOAT
+// : INT|FLOAT|IDENTIFIER 
 // : LPAREN expr RPAREN
 std::shared_ptr<Node> Parser::atom()
 {
 	const tokenTypes& type = currentToken->getType();
 
+	//Binary Op
+	if (type == tokenTypes::T_INT || type == tokenTypes::T_FLOAT) {
+		std::shared_ptr<Node> node = std::make_shared<NumberNode>(*currentToken);
+		advance();
+		return node;
+	}
+	else if (type == tokenTypes::T_IDENTIFIER) 
+	{
+		string varname = currentToken->svalue;
+		std::shared_ptr<Node> node = std::make_shared<VarAccessNode>(*currentToken);
+		advance();
 
+		if (currentToken->getType() == tokenTypes::T_EQUALS)
+		{
+			advance();
+			string symbolName = "EXISTS";
+			std::shared_ptr<VarAssignNode> VarNode = std::make_shared<VarAssignNode>(*currentToken, varname, expr(), symbolName);
+			return VarNode;
+		}
+
+		return node;
+	}
 	//Parenthesis
-	if (type == T_LEFTPAR)
+	else if (type == T_LEFTPAR)
 	{
 		advance();
 		std::shared_ptr<Node> node = expr();
@@ -55,27 +77,14 @@ std::shared_ptr<Node> Parser::atom()
 		//Error
 		else
 		{
-			string details = "Expected a )";
-			IllegalSyntaxError error(details, currentToken->getPosStart());
-			CW_CORE_ERROR(error.as_string());
-			std::shared_ptr<Node> node = std::make_shared<EmptyNode>(*currentToken);
-			return node;
+			return throwError("Expected a )");
 		}
-	}
-	//Binary Op
-	else if (type == tokenTypes::T_INT || type == tokenTypes::T_FLOAT) {
-		std::shared_ptr<Node> node = std::make_shared<NumberNode>(*currentToken);
-		advance();
-		return node;
 	}
 	//Error
 	else {
 
-		string details = "Expected a '(', '+', '-', INT, or FLOAT";
-		IllegalSyntaxError error(details, currentToken->getPosStart());
-		CW_CORE_ERROR(error.as_string());
-		std::shared_ptr<Node> node = std::make_shared<EmptyNode>(*currentToken);
-		return node;
+		return throwError("Expected a '(', '+', '-', INT,FLOAT, or IDENTIFIER");
+
 	}
 }
 
@@ -119,12 +128,55 @@ std::shared_ptr<Node> Parser::term()
 	return bin_op([this]() { return this->factor(); }, tokenTypes::T_MULTIPLY, tokenTypes::T_DIVIDE);
 }
 
+// : KEYWORD IDENTIFIER EQUALS expr
 // : term ((PLUS | MINUS) term)*
 std::shared_ptr<Node> Parser::expr()
 {
+	//Keyword assigning
+	if (currentToken->getType() == tokenTypes::T_KEYWORD)
+	{
+		string symbolName = currentToken->svalue;
+		if (symbolName == "Int") {
+
+			advance();
+
+			if (currentToken->getType() == T_IDENTIFIER)
+			{
+				string varname = currentToken->svalue;
+				advance();
+				if (currentToken->getType() == T_EQUALS) {
+					advance();
+					std::shared_ptr<VarAssignNode> VarNode = std::make_shared<VarAssignNode>(*currentToken, varname, expr(), symbolName);
+					return VarNode;
+				}
+				else
+				{
+					return throwError("Expected an =");
+				}
+
+			}
+			else
+			{
+				return throwError("Expected an IDENTIFIER");
+			}
+		}
+		else
+		{
+			return throwError("Undefined Keyword");
+		}
+	}
+
 	return bin_op([this]() { return this->term(); }, tokenTypes::T_PLUS, tokenTypes::T_MINUS);
 }
 
+
+std::shared_ptr<Node> Parser::throwError(std::string details)
+{
+	IllegalSyntaxError error(details, currentToken->getPosStart());
+	CW_CORE_ERROR(error.as_string());
+	std::shared_ptr<Node> node = std::make_shared<EmptyNode>(*currentToken);
+	return node;
+}
 
 // : func ((op1 | op2) func)*
 std::shared_ptr<Node> Parser::bin_op(std::function<std::shared_ptr<Node>()> func_a, tokenTypes op1, int op2, std::function<std::shared_ptr<Node>()> func_b)

@@ -1,15 +1,13 @@
 #include "pch.h"
 #include "Lexer.h"
 
-const string digits = "0123456789";
-
 //Constructor
 Lexer::Lexer(std::string& text, std::string& fileName) : text(text), currentChar(0)
 {
 
 	pos = std::make_shared<LinePosition>(-1, 0, -1, fileName);
 	//Pos is -1 because advance will immedietly increment it.
-	advance();
+
 
 	
 }
@@ -25,11 +23,14 @@ void Lexer::advance()
 		pos->index = -1; //No value
 		currentChar = NULL;
 	}
+	
 }
 
 void Lexer::make_tokens()
 {
-	while (currentChar != NULL)
+	advance();
+
+	while (currentChar)
 	{
 
 
@@ -37,10 +38,17 @@ void Lexer::make_tokens()
 		{
 			advance();
 		}
+		//Numbers
 		else if (digits.find(currentChar) != string::npos) //digits contains it, then its a number
 		{
 			tokens.push_back(make_number());
 		}
+		//Numbers
+		else if (LETTERS.find(currentChar) != string::npos)
+		{
+			tokens.push_back(makeIdentifier());
+		}
+		//Symbols
 		else {
 
 			switch (currentChar)
@@ -66,6 +74,9 @@ void Lexer::make_tokens()
 			case '^':
 				tokens.push_back(Token(tokenTypes::T_POW, NULL, pos));
 				break;
+			case '=':
+				tokens.push_back(Token(tokenTypes::T_EQUALS, NULL, pos));
+				break;
 			default:
 				char c = currentChar;
 				stringstream ss;
@@ -86,7 +97,7 @@ Token Lexer::make_number()
 	stringstream num_str;
 	short dot_count = 0;
 
-	while (currentChar != NULL && (digits.find(currentChar) != string::npos || currentChar == '.'))
+	while (currentChar && (digits.find(currentChar) != string::npos || currentChar == '.'))
 	{
 		if (currentChar == '.')
 		{
@@ -116,6 +127,23 @@ Token Lexer::make_number()
 	}
 }
 
+Token Lexer::makeIdentifier()
+{
+	stringstream ss;
+	LinePosition position = *pos;
+
+	while (currentChar && (LETTER_DIGITS.find(currentChar) != string::npos))
+	{
+		ss << currentChar;
+		advance();
+	}
+
+	if (keywords.isKeyword(ss.str()))
+		return Token(tokenTypes::T_KEYWORD, ss.str(), std::make_shared<LinePosition>(position), pos);
+
+	return Token(tokenTypes::T_IDENTIFIER, ss.str(), std::make_shared<LinePosition>(position), pos);
+}
+
 
 //Accessors
 const std::shared_ptr<LinePosition> Lexer::getPos() const
@@ -130,4 +158,9 @@ const vector<Token>& Lexer::getTokens() const
 		exit(-1);
 	}
 	return tokens;
+}
+
+void Lexer::setText(string& text)
+{
+	this->text = text;
 }

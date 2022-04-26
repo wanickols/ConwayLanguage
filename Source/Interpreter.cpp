@@ -1,7 +1,8 @@
 #include "pch.h"
 #include "Interpreter.h"
 #include "Number.h"
-
+#include "Context.h"
+#include "SymbolTable.h"
 
 Interpreter::Interpreter(std::shared_ptr<Context> context) : context(context)
 {
@@ -40,6 +41,26 @@ Number Interpreter::visit(std::shared_ptr<Node> node)
 		else
 		{
 			CW_CORE_ERROR("Unary Operator node type explcitly declared and wrong");
+		}
+		break;
+	case(nodeTypes::NT_VarAccessNode):
+		if (VarAccessNode* VarAccessNd = dynamic_cast<VarAccessNode*>(node.get()))
+		{
+			return visit(*VarAccessNd);
+		}
+		else
+		{
+			CW_CORE_ERROR("Variable Acess node type explcitly declared and wrong");
+		}
+		break;
+	case(nodeTypes::NT_VarAssignNode):
+		if (VarAssignNode* VarAssignNd = dynamic_cast<VarAssignNode*>(node.get()))
+		{
+			return visit(*VarAssignNd);
+		}
+		else
+		{
+			CW_CORE_ERROR("Variable Assign node type explcitly declared and wrong");
 		}
 		break;
 	case(nodeTypes::NT_EmptyNode):
@@ -117,6 +138,61 @@ Number Interpreter::visit(BinOpNode& binOpNode)
 
 	return result;
 
+}
+
+Number Interpreter::visit(VarAccessNode& accessNode)
+{
+	string var_name = accessNode.getToken().svalue;
+	Number result(0, accessNode.getLinePosition(), context);
+
+	std::shared_ptr<std::pair<string, std::any>> pair_val = context->symbolTable->get(var_name);
+
+	string type_name = context->symbolTable->get(var_name)->first;
+	 
+	if (type_name == "Int") 
+	{
+		result.setValue(std::any_cast<int>(pair_val->second));
+	}
+	else if (type_name == "Float") 
+	{
+		float f = std::any_cast<float>(pair_val->second);
+		CW_CORE_WARN("There is no floats in this game! :D");
+		int i = (int)f;
+		result.setValue(i);
+	}
+	else 
+	{
+		if (type_name == "null")
+			VarNotDefined(accessNode);
+		else {
+			CW_CORE_ERROR("Invalid Type Name");
+		}
+	}
+
+	
+	return result;
+}
+
+Number Interpreter::visit(VarAssignNode& assignNode)
+{
+	Number result(0, assignNode.getLinePosition(), context);
+	Number adder = visit(assignNode.valueNode);
+	int val = adder.getValue();
+	if(assignNode.varType != "Exist")
+		context->symbolTable->set(assignNode.varName, val, assignNode.varType);
+	else 
+	{
+		context->symbolTable->set(assignNode.varName, val);
+	}
+
+	return result;
+}
+
+void Interpreter::VarNotDefined(VarAccessNode& node)
+{
+	string details = "Variable {} is Not defined";
+	RTError error(details, node.getLinePosition(), context);
+	CW_CORE_ERROR(error.as_string(), node.getToken().svalue);
 }
 
 void Interpreter::no_visit_method(std::shared_ptr<Node> node)

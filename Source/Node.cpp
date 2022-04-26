@@ -63,3 +63,19 @@ string UnaryOpNode::represent()
 	ss << tok.Representation() << " " << otherNode->represent();
 	return ss.str();
 }
+
+VarAssignNode::VarAssignNode(Token& op_tok, string var_name, std::shared_ptr<Node> other_node, string var_type) : Node(op_tok, nodeTypes::NT_VarAssignNode), varName(var_name), valueNode(other_node), varType(var_type)
+{
+}
+
+
+string VarAssignNode::represent()
+{
+	stringstream ss;
+	ss << tok.Representation() << " " << varName << " " << valueNode->represent();
+	return ss.str();
+}
+
+VarAccessNode::VarAccessNode(Token& op_tok) : Node(op_tok, nodeTypes::NT_VarAccessNode)
+{
+}

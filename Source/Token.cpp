@@ -39,11 +39,15 @@ Token::Token(tokenTypes type, float value, std::shared_ptr<LinePosition> pos_sta
 	}
 }
 
+Token::Token(tokenTypes type, string value, std::shared_ptr<LinePosition> pos_start, std::shared_ptr<LinePosition> pos_end) : type(type), svalue(value), posStart(0, 0, 0, empt), posEnd(0, 0, 0, empt)
+{
+}
+
 //Repr
 std::string Token::Representation()
 {
 
-	const char* typesString[10]
+	const char* typesString[]
 	{
 		"PLUS",
 		"MINUS",
@@ -54,6 +58,9 @@ std::string Token::Representation()
 		"INT",
 		"FLOAT",
 		"TOPOWEROF",
+		"EQUALS",
+		"IDENTIFIER",
+		"KEYWORD",
 		"EOF"
 	};
 

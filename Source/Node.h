@@ -7,6 +7,8 @@ const enum nodeTypes
 	NT_NumberNode = 0,
 	NT_BinOpNode,
 	NT_UnaryOpNode,
+	NT_VarAssignNode,
+	NT_VarAccessNode,
 	NT_EmptyNode
 };
 
@@ -72,3 +74,22 @@ public:
 	std::shared_ptr<Node> otherNode;
 };
 
+class VarAssignNode : public Node 
+{
+public:
+	VarAssignNode(Token& op_tok, string var_name, std::shared_ptr<Node> other_node, string var_type);
+
+	string represent() override;
+
+	string varName;
+	string varType;
+	std::shared_ptr<Node> valueNode;
+
+};
+
+class VarAccessNode : public Node
+{
+public:
+	VarAccessNode(Token& op_tok);
+
+};

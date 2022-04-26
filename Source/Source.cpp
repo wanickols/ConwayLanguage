@@ -1,4 +1,5 @@
 #include "pch.h"
+#include <windows.h>
 #include "Lexer.h"
 #include "Parser.h"
 #include "Interpreter.h"
@@ -27,7 +28,7 @@ The ability to set a time of each run (speed)
 The ability to set a number of runs (times game will continue until stop)
 */
 
-void run(string& text, string& fileName);
+void run();
 std::shared_ptr<string> userInput();
 std::shared_ptr<string> fileInput();
 bool Init();
@@ -38,59 +39,74 @@ int main() {
 	//Init
 	Init();
 
-	//Input
-	std::shared_ptr<string> text = userInput();
-	string fileName = "Custom Input";
-	
+	//Prompt
+	std::cout << "Hello and welcome to conway programming! Please enter in your code below \n";
 
 	//Running
-	run(*text, fileName);
+	run();
 	 
 	return 0;
 }
 
-void run(string& text, string& fileName)
+void run()
 {
+	string fileName = "Custom Input";
 
+	//Tokens
 	vector<Token> tokens;
-
-	//Lexer
-	Lexer lexer(text, fileName);
-	//Generate Tokens
-	lexer.make_tokens();
-	
-	tokens = lexer.getTokens();
-
-	Parser parser(tokens);
-	
-	
-
-	std::shared_ptr<Node> parsedNode = parser.parse();
 
 	//Context
 	std::shared_ptr<LinePosition> linePos = std::make_shared<LinePosition>(0, 0, 0, fileName);
 	std::shared_ptr<Context> context = std::make_shared<Context>("Main", nullptr, linePos);
 
-	//Interpretation
+	//Interpreter
 	Interpreter interper(context);
+	
+	//Text
+	string text = "";
+	
 
-	//Printing
-	cout << "Here's what we made: \n";
-	cout << interper.visit(parsedNode).getValue();
+	
 
-	//PrintRun(tokens, parser);
+	//Game Loop
+	bool running = true;
+	while (running) {
+		//Input
+		text = *userInput();
+		
+		//Lexer
+		Lexer lexer(text, fileName);
+
+		//Parser
+		
+		//Generate Tokens
+		lexer.make_tokens();
+
+		tokens = lexer.getTokens();
+
+		Parser parser(tokens);
+
+		std::shared_ptr<Node> parsedNode = parser.parse();
+
+		//Interpretation
+		
+
+		//Printing
+		cout << interper.visit(parsedNode).getValue() << endl;
+
+		//PrintRun(tokens, parser);
+	}
 }
 
 std::shared_ptr<string> userInput()
 {
 	std::shared_ptr<string> text = std::make_shared<string>();
 	
-	//Prompt
-	std::cout << "Hello and welcome to conway programming! Please enter in your code below \n";
 	
 	std::string line;
-	while (std::getline(std::cin, line) && !line.empty())
+	while (std::getline(std::cin, line) && !line.empty()) {
 		*text += line + " ";
+	}
 
 	CW_CORE_WARN(*text);
 	//Working on it
@@ -122,6 +138,7 @@ bool Init()
 void PrintRun(vector<Token>& tokens, Parser& parser)
 {
 	
+
 
 	//Printing of tokens
 	for (int i = 0; i < tokens.size(); i++)

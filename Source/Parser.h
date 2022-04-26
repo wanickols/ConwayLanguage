@@ -32,6 +32,8 @@ private:
 	//int parseCounter;
 	//int binOpCounter;
 
+	std::shared_ptr<Node> throwError(std::string details);
+
 	std::shared_ptr<Node> bin_op(std::function<std::shared_ptr<Node>()>, tokenTypes op1, int op2 = NULL, std::function<std::shared_ptr<Node>()> func2 = NULL);
 };
 
