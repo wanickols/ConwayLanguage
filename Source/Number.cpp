@@ -42,6 +42,52 @@ int Number::dived_by(Number other)
 	return value/other.value;
 }
 
+bool Number::getComparison_EE(Number other)
+{
+	return value == other.value;
+}
+
+bool Number::getComparison_NE(Number other)
+{
+	return value != other.value;
+}
+
+bool Number::getComparison_LT(Number other)
+{
+	return value < other.value;
+}
+
+bool Number::getComparison_GT(Number other)
+{
+	return value > other.value;
+}
+
+bool Number::getComparison_LTE(Number other)
+{
+	return value <= other.value;
+}
+
+bool Number::getComparison_GTE(Number other)
+{
+	return value >= other.value;
+}
+
+bool Number::getComparison_KEYWORD(Number other, string keyword)
+{
+	if (keyword == "AND")
+		return value && other.value;
+	else if (keyword == "OR")
+		return value || other.value;
+}
+
+bool Number::notted()
+{
+	if (value == 0)
+		return 1;
+	else
+		return 0;
+}
+
 const int Number::getValue() const
 {
 	return value;

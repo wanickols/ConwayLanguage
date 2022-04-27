@@ -8,7 +8,8 @@
 Parser::Parser(vector<Token>& tokens) : tokens(tokens), tok_idx(0), currentToken(nullptr)
 {
 	std::unique_ptr<vector<Node>> nodes = std::make_unique<vector<Node>>();
-	
+	BinKeywords = std::make_shared<unordered_set<string>>();
+	BinKeywords->insert({ "AND", "OR" });
 }
 
 void Parser::advance()
@@ -53,7 +54,7 @@ std::shared_ptr<Node> Parser::atom()
 		std::shared_ptr<Node> node = std::make_shared<VarAccessNode>(*currentToken);
 		advance();
 
-		if (currentToken->getType() == tokenTypes::T_EQUALS)
+		if (currentToken->getType() == tokenTypes::T_EQ)
 		{
 			advance();
 			string symbolName = "EXISTS";
@@ -92,8 +93,9 @@ std::shared_ptr<Node> Parser::atom()
 // : atom (POW factor)*
 std::shared_ptr<Node> Parser::power()
 {
-	//Two pows redudant, but can't pass in null or -1 without unforseen consequences. 
-	return  bin_op([this]() { return this->atom(); }, tokenTypes::T_POW, tokenTypes::T_POW, [this]() { return this->factor(); });
+	std::shared_ptr<std::unordered_set<tokenTypes>> types = std::make_shared<std::unordered_set<tokenTypes>>();
+	types->insert( tokenTypes::T_POW );
+	return  bin_op([this]() { return this->atom(); }, types, [this]() { return this->factor(); });
 }
 
 
@@ -125,11 +127,57 @@ std::shared_ptr<Node> Parser::factor()
 // : factor ((MUL|DIV) factor)*
 std::shared_ptr<Node> Parser::term()
 {
-	return bin_op([this]() { return this->factor(); }, tokenTypes::T_MULTIPLY, tokenTypes::T_DIVIDE);
+	std::shared_ptr<std::unordered_set<tokenTypes>> types = std::make_shared<std::unordered_set<tokenTypes>>();
+	types->insert({ tokenTypes::T_MULTIPLY, tokenTypes::T_DIVIDE });
+	return bin_op([this]() { return this->factor(); }, types);
 }
 
-// : KEYWORD IDENTIFIER EQUALS expr
 // : term ((PLUS | MINUS) term)*
+std::shared_ptr<Node> Parser::arith_expr()
+{
+	std::shared_ptr<std::unordered_set<tokenTypes>> types = std::make_shared<std::unordered_set<tokenTypes>>();
+	types->insert({ tokenTypes::T_PLUS, tokenTypes::T_MINUS });
+	return bin_op([this]() { return this->term(); }, types);
+}
+
+// : Not cmpr_expr
+// : arith_expr (EE|LT|GT|LTE|GTE arith_expr)
+std::shared_ptr<Node> Parser::cmpr_expr()
+{
+	tokenTypes type = currentToken->getType();
+
+	//Not handling
+	if (type == tokenTypes::T_KEYWORD)
+	{
+		string symbolName = currentToken->svalue;
+		if (symbolName == "NOT")
+		{
+			return returnNotExpr();
+		}
+	}
+	else if (type == tokenTypes::T_NOT)
+	{
+		std::shared_ptr<Node> Cnode = cmpr_expr();
+		std::shared_ptr<UnaryOpNode> uNode = std::make_shared<UnaryOpNode>(*currentToken, Cnode);
+		return uNode;
+	}
+
+	//arithmExpr
+	std::shared_ptr<std::unordered_set<tokenTypes>> types = std::make_shared<std::unordered_set<tokenTypes>>();
+	types->insert({ tokenTypes::T_EE, tokenTypes::T_LT, tokenTypes::T_GT, tokenTypes::T_LTE, tokenTypes::T_GTE });
+	return bin_op([this]() { return this->arith_expr(); }, types);
+}
+
+std::shared_ptr<Node> Parser::returnNotExpr()
+{
+	std::shared_ptr<Node> Cnode = cmpr_expr();
+	std::shared_ptr<UnaryOpNode> uNode = std::make_shared<UnaryOpNode>(*currentToken, Cnode);
+	return uNode;
+}
+
+
+// : KEYWORD(VARIABLETYPE) IDENTIFIER EQUALS expr
+// : cmpr_expr ((KEYWORD(AND|OR_)) cmpr_expr)
 std::shared_ptr<Node> Parser::expr()
 {
 	//Keyword assigning
@@ -144,9 +192,10 @@ std::shared_ptr<Node> Parser::expr()
 			{
 				string varname = currentToken->svalue;
 				advance();
-				if (currentToken->getType() == T_EQUALS) {
+				if (currentToken->getType() == T_EQ) {
 					advance();
 					std::shared_ptr<VarAssignNode> VarNode = std::make_shared<VarAssignNode>(*currentToken, varname, expr(), symbolName);
+				
 					return VarNode;
 				}
 				else
@@ -160,14 +209,20 @@ std::shared_ptr<Node> Parser::expr()
 				return throwError("Expected an IDENTIFIER");
 			}
 		}
+		else if (symbolName == "NOT")
+		{
+			return cmpr_expr();
+		}
 		else
 		{
 			return throwError("Undefined Keyword");
 		}
 	}
 
-	return bin_op([this]() { return this->term(); }, tokenTypes::T_PLUS, tokenTypes::T_MINUS);
+	return bin_op_key([this]() { return this->cmpr_expr(); }, BinKeywords);
+
 }
+
 
 
 std::shared_ptr<Node> Parser::throwError(std::string details)
@@ -179,7 +234,7 @@ std::shared_ptr<Node> Parser::throwError(std::string details)
 }
 
 // : func ((op1 | op2) func)*
-std::shared_ptr<Node> Parser::bin_op(std::function<std::shared_ptr<Node>()> func_a, tokenTypes op1, int op2, std::function<std::shared_ptr<Node>()> func_b)
+std::shared_ptr<Node> Parser::bin_op(std::function<std::shared_ptr<Node>()> func_a, std::shared_ptr<unordered_set<tokenTypes>> ops, std::function<std::shared_ptr<Node>()> func_b)
 {
 	if (func_b == NULL)
 		func_b = func_a;
@@ -188,7 +243,7 @@ std::shared_ptr<Node> Parser::bin_op(std::function<std::shared_ptr<Node>()> func
 	std::shared_ptr<Node> left = func_a();
 
 	tokenTypes type = currentToken->getType();
-		while (type == op1 || type == op2)
+		while (ops->find(type) != ops->end())
 		{
 			//Incrementing
 			Token* op_tok = currentToken;
@@ -207,4 +262,36 @@ std::shared_ptr<Node> Parser::bin_op(std::function<std::shared_ptr<Node>()> func
 	//returns final left tree
 	return left;
 
+}
+
+std::shared_ptr<Node> Parser::bin_op_key(std::function<std::shared_ptr<Node>()> func_a, std::shared_ptr<unordered_set<string>> ops, std::function<std::shared_ptr<Node>()> func_b)
+{
+	if (func_b == NULL)
+		func_b = func_a;
+
+
+	std::shared_ptr<Node> left = func_a();
+
+	if (currentToken->getType() == tokenTypes::T_KEYWORD)
+	{
+		string symbolName = currentToken->svalue;
+		while (ops->find(symbolName) != ops->end())
+		{
+			//Incrementing
+			Token* op_tok = currentToken;
+			advance();
+			//setting right
+			std::shared_ptr<Node> right = func_b();
+			//recursively chaining left to make a tree
+			std::shared_ptr<BinOpNode> newNodePtr = std::make_shared<BinOpNode>(left, *op_tok, right);
+
+			left = newNodePtr;
+
+			symbolName = currentToken->svalue;
+		}
+	}
+
+
+	//returns final left tree
+	return left;
 }

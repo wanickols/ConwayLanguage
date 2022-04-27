@@ -91,5 +91,5 @@ class VarAccessNode : public Node
 {
 public:
 	VarAccessNode(Token& op_tok);
-
+	string represent() override;
 };

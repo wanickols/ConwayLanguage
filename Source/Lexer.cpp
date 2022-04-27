@@ -75,7 +75,16 @@ void Lexer::make_tokens()
 				tokens.push_back(Token(tokenTypes::T_POW, NULL, pos));
 				break;
 			case '=':
-				tokens.push_back(Token(tokenTypes::T_EQUALS, NULL, pos));
+				tokens.push_back(makeEqualsOperations());
+				break;
+			case '!':
+				tokens.push_back(makeNotOperations());
+				break;
+			case '<':
+				tokens.push_back(makeLessThanOperations());
+				break;
+			case '>':
+				tokens.push_back(makeGreaterThanOperaitons());
 				break;
 			default:
 				char c = currentChar;
@@ -142,6 +151,59 @@ Token Lexer::makeIdentifier()
 		return Token(tokenTypes::T_KEYWORD, ss.str(), std::make_shared<LinePosition>(position), pos);
 
 	return Token(tokenTypes::T_IDENTIFIER, ss.str(), std::make_shared<LinePosition>(position), pos);
+}
+
+Token Lexer::makeEqualsOperations()
+{
+	if (GetNextChar() == '=') {
+		advance();
+		return Token(tokenTypes::T_EE, NULL, pos);
+	}
+	return Token(tokenTypes::T_EQ, NULL, pos);
+}
+
+Token Lexer::makeLessThanOperations()
+{
+
+	if (GetNextChar() == '=') {
+		advance();
+		return Token(tokenTypes::T_LTE, NULL, pos);
+	}
+
+	return Token(tokenTypes::T_LT, NULL, pos);
+}
+
+Token Lexer::makeGreaterThanOperaitons()
+{
+	
+	if (GetNextChar() == '=') {
+		advance();
+		return Token(tokenTypes::T_GTE, NULL, pos);
+	
+	}
+
+	return Token(tokenTypes::T_GT, NULL, pos);
+}
+
+Token Lexer::makeNotOperations()
+{
+	if (GetNextChar() == '=') {
+		advance();
+		return Token(tokenTypes::T_NE, NULL, pos);
+	}
+
+	return Token(tokenTypes::T_NOT, NULL, pos);
+}
+
+const char Lexer::GetNextChar()
+{
+	if (pos->index+1 < text.length()) //if still have text
+		return(text[pos->index+1]);
+	else
+	{
+		CW_CORE_WARN("No Char Found After Operator " + pos->represent());
+		return('f');
+	}
 }
 
 

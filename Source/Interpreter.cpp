@@ -20,6 +20,8 @@ Number Interpreter::visit(std::shared_ptr<Node> node)
 		}else
 		{
 			CW_CORE_ERROR("Number node type explcitly declared and wrong");
+			no_visit_method(node);
+			return Number(-1, node->getLinePosition(), context);
 		}
 
 		break;
@@ -31,6 +33,8 @@ Number Interpreter::visit(std::shared_ptr<Node> node)
 		else
 		{
 			CW_CORE_ERROR("Binary Operator node type explcitly declared and wrong");
+			no_visit_method(node);
+			return Number(-1, node->getLinePosition(), context);
 		}
 		break;
 	case(nodeTypes::NT_UnaryOpNode):
@@ -41,6 +45,8 @@ Number Interpreter::visit(std::shared_ptr<Node> node)
 		else
 		{
 			CW_CORE_ERROR("Unary Operator node type explcitly declared and wrong");
+			no_visit_method(node);
+			return Number(-1, node->getLinePosition(), context);
 		}
 		break;
 	case(nodeTypes::NT_VarAccessNode):
@@ -51,6 +57,8 @@ Number Interpreter::visit(std::shared_ptr<Node> node)
 		else
 		{
 			CW_CORE_ERROR("Variable Acess node type explcitly declared and wrong");
+			no_visit_method(node);
+			return Number(-1, node->getLinePosition(), context);
 		}
 		break;
 	case(nodeTypes::NT_VarAssignNode):
@@ -61,6 +69,8 @@ Number Interpreter::visit(std::shared_ptr<Node> node)
 		else
 		{
 			CW_CORE_ERROR("Variable Assign node type explcitly declared and wrong");
+			no_visit_method(node);
+			return Number(-1, node->getLinePosition(), context);
 		}
 		break;
 	case(nodeTypes::NT_EmptyNode):
@@ -69,7 +79,7 @@ Number Interpreter::visit(std::shared_ptr<Node> node)
 		return Number(-1, node->getLinePosition(), context);
 		break;
 	}
-
+	
 	
 }
 
@@ -102,10 +112,14 @@ Number Interpreter::visit(UnaryOpNode& unOpNode)
 	//CW_CORE_TRACE("found Unary operation node");
 	Number other = visit(unOpNode.otherNode);
 
-
-	if (unOpNode.getTokenType() == tokenTypes::T_MINUS) 
+	tokenTypes type = unOpNode.getTokenType();
+	if (type == tokenTypes::T_MINUS)
 	{
 		other.setValue(other.getValue() * -1);
+	}
+	else if (type == tokenTypes::T_NOT) 
+	{
+	
 	}
 	return other;
 }
@@ -133,6 +147,27 @@ Number Interpreter::visit(BinOpNode& binOpNode)
 		break;
 	case(tokenTypes::T_POW):
 		result.setValue(left.power_of(right));
+		break;
+	case(tokenTypes::T_EE):
+		result.setValue(left.getComparison_EE(right));
+		break;
+	case(tokenTypes::T_NE):
+		result.setValue(left.getComparison_NE(right));
+		break;
+	case(tokenTypes::T_LT):
+		result.setValue(left.getComparison_LT(right));
+		break;
+	case(tokenTypes::T_GT):
+		result.setValue(left.getComparison_GT(right));
+		break;
+	case(tokenTypes::T_LTE):
+		result.setValue(left.getComparison_LTE(right));
+		break;
+	case(tokenTypes::T_GTE):
+		result.setValue(left.getComparison_GTE(right));
+		break;
+	case(tokenTypes::T_KEYWORD):
+		result.setValue(left.getComparison_KEYWORD(right, binOpNode.getToken().svalue));
 		break;
 	}
 
@@ -184,7 +219,7 @@ Number Interpreter::visit(VarAssignNode& assignNode)
 	{
 		context->symbolTable->set(assignNode.varName, val);
 	}
-
+	result.setValue(val);
 	return result;
 }
 

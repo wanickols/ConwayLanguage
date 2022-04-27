@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "Token.h"
-#include "LinePosition.h"
+
 
 //Int
 Token::Token(tokenTypes type, int value, std::shared_ptr<LinePosition> pos_start, std::shared_ptr<LinePosition> pos_end) : type(type), value(value), empt("nothing"), posStart(0, 0, 0, empt), posEnd(0, 0, 0, empt)
@@ -46,24 +46,6 @@ Token::Token(tokenTypes type, string value, std::shared_ptr<LinePosition> pos_st
 //Repr
 std::string Token::Representation()
 {
-
-	const char* typesString[]
-	{
-		"PLUS",
-		"MINUS",
-		"MULTIPLY",
-		"DIVIDE",
-		"LEFTPAR",
-		"RIGHTPAR",
-		"INT",
-		"FLOAT",
-		"TOPOWEROF",
-		"EQUALS",
-		"IDENTIFIER",
-		"KEYWORD",
-		"EOF"
-	};
-
 	std::stringstream rpr;
 	rpr << typesString[type];
 	if (value != NULL) {

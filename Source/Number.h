@@ -13,6 +13,14 @@ public:
 	int multed_by(Number other);
 	int power_of(Number other);
 	int dived_by(Number other);
+	bool getComparison_EE(Number other);
+	bool getComparison_NE(Number other);
+	bool getComparison_LT(Number other);
+	bool getComparison_GT(Number other);
+	bool getComparison_LTE(Number other);
+	bool getComparison_GTE(Number other);
+	bool getComparison_KEYWORD(Number other, string keyword);
+	bool notted();
 
 	const int getValue() const;
 	void setValue(const int val);

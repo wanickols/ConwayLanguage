@@ -72,10 +72,17 @@ VarAssignNode::VarAssignNode(Token& op_tok, string var_name, std::shared_ptr<Nod
 string VarAssignNode::represent()
 {
 	stringstream ss;
-	ss << tok.Representation() << " " << varName << " " << valueNode->represent();
+	ss << varName << " = " << valueNode->represent();
 	return ss.str();
 }
 
 VarAccessNode::VarAccessNode(Token& op_tok) : Node(op_tok, nodeTypes::NT_VarAccessNode)
 {
+}
+
+string VarAccessNode::represent()
+{
+	stringstream ss;
+	ss << tok.Representation();
+	return ss.str();
 }

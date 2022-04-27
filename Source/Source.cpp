@@ -41,6 +41,7 @@ int main() {
 
 	//Prompt
 	std::cout << "Hello and welcome to conway programming! Please enter in your code below \n";
+	std::cout << "Press ESC then Enter to leave \n";
 
 	//Running
 	run();
@@ -73,27 +74,27 @@ void run()
 	while (running) {
 		//Input
 		text = *userInput();
-		
-		//Lexer
-		Lexer lexer(text, fileName);
+		if (!text.empty()) {
+			//Lexer
+			Lexer lexer(text, fileName);
 
-		//Parser
-		
-		//Generate Tokens
-		lexer.make_tokens();
+			//Parser
 
-		tokens = lexer.getTokens();
+			//Generate Tokens
+			lexer.make_tokens();
 
-		Parser parser(tokens);
+			tokens = lexer.getTokens();
 
-		std::shared_ptr<Node> parsedNode = parser.parse();
+			Parser parser(tokens);
 
-		//Interpretation
-		
+			std::shared_ptr<Node> parsedNode = parser.parse();
 
-		//Printing
-		cout << interper.visit(parsedNode).getValue() << endl;
+			//Interpretation
 
+
+			//Printing
+			cout << interper.visit(parsedNode).getValue() << " " << parsedNode->represent() << endl;
+		}
 		//PrintRun(tokens, parser);
 	}
 }
@@ -104,7 +105,12 @@ std::shared_ptr<string> userInput()
 	
 	
 	std::string line;
-	while (std::getline(std::cin, line) && !line.empty()) {
+	while (getline(cin, line)) {
+		if (line == "?")
+			break;
+		else if (line == "??")
+			exit(1);
+	
 		*text += line + " ";
 	}
 
