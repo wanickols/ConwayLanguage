@@ -98,3 +98,27 @@ string IfNode::represent()
 	ss << tok.Representation();
 	return ss.str();
 }
+
+ForNode::ForNode(Token& tok, string var_name, string var_type, std::shared_ptr<Node> start_node, std::shared_ptr<Node> end_node, std::shared_ptr<Node> step_node, std::shared_ptr<Node> expression) : Node(tok, NT_ForNode), startNode(start_node), endNode(end_node), stepNode(step_node), expression(expression), varName(var_name), varType(var_type)
+{
+}
+
+string ForNode::represent()
+{
+	//Add Representation
+	stringstream ss;
+	ss << tok.Representation();
+	return ss.str();
+}
+
+WhileNode::WhileNode(Token& op_tok, std::shared_ptr<Case> passed_case) : Node(op_tok, NT_WhileNode), case_(passed_case)
+{
+}
+
+string WhileNode::represent()
+{
+	//Add Representation
+	stringstream ss;
+	ss << tok.Representation();
+	return ss.str();
+}

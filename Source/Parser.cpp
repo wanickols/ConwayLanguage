@@ -83,9 +83,16 @@ std::shared_ptr<Node> Parser::atom()
 		}
 	}
 	//IF keyword
-	else if (type == T_KEYWORD && currentToken->svalue == "IF")
+	else if (type == T_KEYWORD)
 	{
-		return if_expr();
+		if (currentToken->svalue == "IF")
+			return if_expr();
+		else if (currentToken->svalue == "FOR")
+			return for_expr();
+		else if (currentToken->svalue == "WHILE")
+			return while_expr();
+		else
+			return throwError("Unknown Keyword");
 	}
 	//Error
 	else {
@@ -286,6 +293,86 @@ std::shared_ptr<Node> Parser::if_expr()
 
 	return std::make_shared<IfNode>(tok, cases, node);
 }
+
+std::shared_ptr<Node> Parser::for_expr()
+{
+	Token& tok = *currentToken;
+
+	if (currentToken->svalue != "FOR")
+	{
+		return throwError("Expected FOR keyword");
+	}
+
+	advance();
+
+	if (currentToken->getType() != tokenTypes::T_IDENTIFIER)
+	{
+		return throwError("Expected Identifier");
+	}
+
+	string varName = currentToken->svalue;
+	advance();
+
+	if (currentToken->getType() != tokenTypes::T_EQ)
+	{
+		return throwError("Expected Equals");
+	}
+
+	advance();
+
+	std::shared_ptr<Node> start_value = expr();
+
+	if (currentToken->svalue != "TO")
+	{
+		return throwError("Expected TO keyword");
+	}
+
+	advance();
+	std::shared_ptr<Node> end_value = expr();
+
+	std::shared_ptr<Node> step_value = nullptr;
+	if (currentToken->svalue == "STEP")
+	{
+		advance();
+		step_value = expr();
+	}
+
+	if (currentToken->svalue != "THEN")
+	{
+		return throwError("Expected THEN keyword");
+	}
+	
+	advance();
+	std::shared_ptr<Node> body = expr();
+
+	return(std::make_shared<ForNode>(tok, varName, "Int", start_value, end_value, step_value, body));
+
+}
+
+std::shared_ptr<Node> Parser::while_expr()
+{
+	Token& tok = *currentToken;
+
+	if (currentToken->svalue != "WHILE")
+	{
+		return throwError("Expected IF keyword");
+	}
+
+	advance();
+	std::shared_ptr<Node> cond = expr();
+
+
+	if (currentToken->svalue != "THEN")
+	{
+		return throwError("Expected THEN keyword");
+	}
+
+	advance();
+	std::shared_ptr<Node> express = expr();
+
+	return std::make_shared<WhileNode>(tok, std::make_shared<Case>(cond, express));
+}
+	
 
 
 

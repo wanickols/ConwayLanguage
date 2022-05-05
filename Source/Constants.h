@@ -68,8 +68,10 @@ static const std::vector<string> keywordList
 	"THEN",
 	"ELIF",
 	"ELSE",
-	"While",
-	"For"
+	"WHILE",
+	"FOR",
+	"STEP",
+	"TO"
 };
 
 //Variable types

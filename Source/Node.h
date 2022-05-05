@@ -10,8 +10,10 @@ const enum nodeTypes
 	NT_BinOpNode,
 	NT_UnaryOpNode,
 	NT_VarAssignNode,
-	NT_IfNode,
 	NT_VarAccessNode,
+	NT_IfNode,
+	NT_ForNode,
+	NT_WhileNode,
 	NT_EmptyNode
 };
 
@@ -105,4 +107,27 @@ public:
 
 	std::shared_ptr<vector<Case>> cases;
 	std::shared_ptr<Node> elseNode;
+};
+
+class ForNode : public Node
+{
+public:
+	ForNode(Token& op_tok, string var_name, string var_type, std::shared_ptr<Node> start_node, std::shared_ptr<Node> end_node, std::shared_ptr<Node> step_node, std::shared_ptr<Node> expression);
+	string represent() override;
+
+	string varName;
+	string varType;
+	std::shared_ptr<Node> startNode;
+	std::shared_ptr<Node> endNode;
+	std::shared_ptr<Node> stepNode;  
+	std::shared_ptr<Node> expression;
+};
+
+class WhileNode : public Node
+{
+public:
+	WhileNode(Token& op_tok, std::shared_ptr<Case> passed_case);
+	string represent() override;
+
+	std::shared_ptr<Case> case_;
 };

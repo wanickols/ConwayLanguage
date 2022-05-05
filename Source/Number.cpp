@@ -7,6 +7,10 @@ Number::Number(int value, std::shared_ptr<LinePosition> pos, std::shared_ptr<Con
 {
 }
 
+Number::Number() : value(0), position(nullptr), context(nullptr), isReal(false)
+{
+}
+
 
 int Number::added_to(Number other)
 {

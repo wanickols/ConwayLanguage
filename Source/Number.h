@@ -7,6 +7,7 @@ class Number
 {
 public:
 	Number(int value, std::shared_ptr<LinePosition> pos, std::shared_ptr<Context> context);
+	Number();
 
 	int added_to(Number other);
 	int subbed_by(Number other);

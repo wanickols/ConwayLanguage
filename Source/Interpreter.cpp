@@ -5,7 +5,7 @@
 #include "SymbolTable.h"
 #include "Case.h"
 
-Interpreter::Interpreter(std::shared_ptr<Context> context) : context(context)
+Interpreter::Interpreter(std::shared_ptr<Context> context) : context(context), maxWhileSize(10000)
 {
 
 }
@@ -21,8 +21,7 @@ Number Interpreter::visit(std::shared_ptr<Node> node)
 		}else
 		{
 			CW_CORE_ERROR("Number node type explcitly declared and wrong");
-			no_visit_method(node);
-			return Number(-1, node->getLinePosition(), context);
+			return no_visit_method(node);
 		}
 
 		break;
@@ -34,8 +33,7 @@ Number Interpreter::visit(std::shared_ptr<Node> node)
 		else
 		{
 			CW_CORE_ERROR("Binary Operator node type explcitly declared and wrong");
-			no_visit_method(node);
-			return Number(-1, node->getLinePosition(), context);
+			return no_visit_method(node);
 		}
 		break;
 	case(nodeTypes::NT_UnaryOpNode):
@@ -46,8 +44,7 @@ Number Interpreter::visit(std::shared_ptr<Node> node)
 		else
 		{
 			CW_CORE_ERROR("Unary Operator node type explcitly declared and wrong");
-			no_visit_method(node);
-			return Number(-1, node->getLinePosition(), context);
+			return no_visit_method(node);
 		}
 		break;
 	case(nodeTypes::NT_VarAccessNode):
@@ -58,8 +55,7 @@ Number Interpreter::visit(std::shared_ptr<Node> node)
 		else
 		{
 			CW_CORE_ERROR("Variable Acess node type explcitly declared and wrong");
-			no_visit_method(node);
-			return Number(-1, node->getLinePosition(), context);
+			return no_visit_method(node);
 		}
 		break;
 	case(nodeTypes::NT_VarAssignNode):
@@ -70,8 +66,7 @@ Number Interpreter::visit(std::shared_ptr<Node> node)
 		else
 		{
 			CW_CORE_ERROR("Variable Assign node type explcitly declared and wrong");
-			no_visit_method(node);
-			return Number(-1, node->getLinePosition(), context);
+			return no_visit_method(node);
 		}
 		break;
 	case(nodeTypes::NT_IfNode):
@@ -82,18 +77,43 @@ Number Interpreter::visit(std::shared_ptr<Node> node)
 			else
 			{
 				CW_CORE_ERROR("Variable If node type explcitly declared and wrong");
-				no_visit_method(node);
-				return Number(-1, node->getLinePosition(), context);
+				return no_visit_method(node);
 			}
+		break;
+	case(nodeTypes::NT_ForNode):
+		if (ForNode* forNode = dynamic_cast<ForNode*>(node.get()))
+		{
+			return visit(*forNode);
+		}
+		else
+		{
+			CW_CORE_ERROR("Variable For node type explcitly declared and wrong");
+			return no_visit_method(node);
+		}
+		break;
+	case(nodeTypes::NT_WhileNode):
+		if (WhileNode* whileNode = dynamic_cast<WhileNode*>(node.get()))
+		{
+			return visit(*whileNode);
+		}
+		else
+		{
+			CW_CORE_ERROR("Variable While node type explcitly declared and wrong");
+			return no_visit_method(node);
+		}
 		break;
 	case(nodeTypes::NT_EmptyNode):
 	default:
-		no_visit_method(node);
-		return Number(-1, node->getLinePosition(), context);
+		return no_visit_method(node);
 		break;
 	}
 	
 	
+}
+
+void Interpreter::setMaxWhileSize(const int size)
+{
+	maxWhileSize = size;
 }
 
 Number Interpreter::visit(NumberNode& numberNode)
@@ -249,20 +269,90 @@ Number Interpreter::visit(IfNode& ifNode)
 		return visit(ifNode.elseNode);
 	else
 	{
-		Number number(0, ifNode.getLinePosition(), context);
-		number.setIsReal(false);
-		return number;
+		return Number();
 	}
 }
 
-void Interpreter::VarNotDefined(VarAccessNode& node)
+Number Interpreter::visit(ForNode& forNode)
+{
+	Number startValue = visit(forNode.startNode);
+	Number endValue = visit(forNode.endNode);
+
+	Number stepValue;
+	int step = 1;
+	if (forNode.stepNode != nullptr) 
+	{
+		stepValue = visit(forNode.stepNode);
+		step = stepValue.getValue();
+	}
+
+	
+	int i = startValue.getValue();
+	int end = endValue.getValue();
+	if (step > 0) 
+	{
+		while (i < end) {
+			context->symbolTable->set(forNode.varName, i, forNode.varType);
+			
+			visit(forNode.expression);
+
+			i += step;
+		}
+	}
+	else if (step < 0) 
+	{
+		while (i > end) {
+			context->symbolTable->set(forNode.varName, i, forNode.varType);
+
+			visit(forNode.expression);
+			
+			i += step;
+		}
+	}
+	else 
+	{
+		return throwError("Step Value Was Invalid");
+	}
+	return Number();
+}
+
+Number Interpreter::visit(WhileNode& whileNode)
+{
+	int counter = 0;
+
+
+	while(true)
+	{
+		Number cond = visit(whileNode.case_->condition);
+		if (!cond.getValue())
+			break;
+		
+		visit(whileNode.case_->expression);
+
+		if (counter > maxWhileSize)
+			break;
+	
+	}
+
+	return Number();
+}
+
+Number Interpreter::VarNotDefined(VarAccessNode& node)
 {
 	string details = "Variable {} is Not defined";
 	RTError error(details, node.getLinePosition(), context);
 	CW_CORE_ERROR(error.as_string(), node.getToken().svalue);
+	return Number();
 }
 
-void Interpreter::no_visit_method(std::shared_ptr<Node> node)
+Number Interpreter::no_visit_method(std::shared_ptr<Node> node)
 {
 	CW_CORE_ERROR("No Visit Method Defined for " + node->represent());
+	return Number(-1, node->getLinePosition(), context);
+}
+
+Number Interpreter::throwError(std::string details)
+{
+	CW_CORE_ERROR(details);
+	return Number();
 }
