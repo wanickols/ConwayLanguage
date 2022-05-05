@@ -3,6 +3,7 @@
 #include "Number.h"
 #include "Context.h"
 #include "SymbolTable.h"
+#include "Case.h"
 
 Interpreter::Interpreter(std::shared_ptr<Context> context) : context(context)
 {
@@ -72,6 +73,18 @@ Number Interpreter::visit(std::shared_ptr<Node> node)
 			no_visit_method(node);
 			return Number(-1, node->getLinePosition(), context);
 		}
+		break;
+	case(nodeTypes::NT_IfNode):
+			if (IfNode* ifNd = dynamic_cast<IfNode*>(node.get()))
+			{
+				return visit(*ifNd);
+			}
+			else
+			{
+				CW_CORE_ERROR("Variable If node type explcitly declared and wrong");
+				no_visit_method(node);
+				return Number(-1, node->getLinePosition(), context);
+			}
 		break;
 	case(nodeTypes::NT_EmptyNode):
 	default:
@@ -221,6 +234,25 @@ Number Interpreter::visit(VarAssignNode& assignNode)
 	}
 	result.setValue(val);
 	return result;
+}
+
+Number Interpreter::visit(IfNode& ifNode)
+{
+	
+	for (int i = 0; i < ifNode.cases->size(); i++) 
+	{
+		Number cond = visit(ifNode.cases->at(i).condition);
+		if (cond.getValue())
+			return visit(ifNode.cases->at(i).expression);
+	}
+	if (ifNode.elseNode != nullptr)
+		return visit(ifNode.elseNode);
+	else
+	{
+		Number number(0, ifNode.getLinePosition(), context);
+		number.setIsReal(false);
+		return number;
+	}
 }
 
 void Interpreter::VarNotDefined(VarAccessNode& node)

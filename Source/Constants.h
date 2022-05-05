@@ -64,7 +64,10 @@ static const std::vector<string> keywordList
 	"NOT",
 	"Float",
 	"Cell",
-	"If",
+	"IF",
+	"THEN",
+	"ELIF",
+	"ELSE",
 	"While",
 	"For"
 };

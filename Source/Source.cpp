@@ -93,7 +93,9 @@ void run()
 
 
 			//Printing
-			cout << interper.visit(parsedNode).getValue() << " " << parsedNode->represent() << endl;
+			Number interpetedNode = interper.visit(parsedNode);
+			if(interpetedNode.getIsReal())
+				cout << interpetedNode.getValue() << " " << parsedNode->represent() << endl;
 		}
 		//PrintRun(tokens, parser);
 	}

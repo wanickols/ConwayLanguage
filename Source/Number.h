@@ -22,11 +22,16 @@ public:
 	bool getComparison_KEYWORD(Number other, string keyword);
 	bool notted();
 
+	//Accessors
 	const int getValue() const;
 	void setValue(const int val);
+	const bool getIsReal() const;
+	void setIsReal(const bool real);
+
 	const std::shared_ptr<LinePosition> getPosition() const;
 private:
 	int value;
+	bool isReal;
 	std::shared_ptr<LinePosition> position;
 	std::shared_ptr<Context> context;
 

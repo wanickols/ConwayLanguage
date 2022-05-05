@@ -86,3 +86,15 @@ string VarAccessNode::represent()
 	ss << tok.Representation();
 	return ss.str();
 }
+
+IfNode::IfNode(Token& op_tok, std::shared_ptr<vector<Case>> cases, std::shared_ptr<Node> else_node) : Node(op_tok, nodeTypes::NT_IfNode), cases(cases), elseNode(else_node)
+{
+
+}
+
+string IfNode::represent()
+{
+	stringstream ss;
+	ss << tok.Representation();
+	return ss.str();
+}

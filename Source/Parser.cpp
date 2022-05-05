@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Parser.h"
+#include "Case.h"
 
 //===============================
 //========== Parser =============
@@ -80,6 +81,11 @@ std::shared_ptr<Node> Parser::atom()
 		{
 			return throwError("Expected a )");
 		}
+	}
+	//IF keyword
+	else if (type == T_KEYWORD && currentToken->svalue == "IF")
+	{
+		return if_expr();
 	}
 	//Error
 	else {
@@ -213,14 +219,72 @@ std::shared_ptr<Node> Parser::expr()
 		{
 			return cmpr_expr();
 		}
-		else
-		{
-			return throwError("Undefined Keyword");
-		}
 	}
 
 	return bin_op_key([this]() { return this->cmpr_expr(); }, BinKeywords);
 
+}
+
+
+// KEYWORD:IF expr KEYWORD:THEN expr 
+// KEYWORD:ELIF expr THEN expr
+// KEYWORD:ELSE expr
+std::shared_ptr<Node> Parser::if_expr()
+{
+	Token& tok = *currentToken;
+
+	if(currentToken->svalue != "IF")
+	{
+		return throwError("Expected IF keyword");
+	}
+
+	advance();
+
+	std::shared_ptr<Node> cond = expr();
+
+	if (currentToken->svalue != "THEN")
+	{
+		return throwError("Expected THEN keyword");
+	}
+
+	advance();
+
+	std::shared_ptr<Node> express = expr();
+		
+	Case case_(cond, express);
+	
+	std::shared_ptr<vector<Case>> cases = std::make_shared<vector<Case>>();
+	cases->push_back(case_);
+
+	while (currentToken->svalue == "ELIF") 
+	{
+		advance();
+		std::shared_ptr<Node> condition = expr();
+
+		if (currentToken->svalue != "THEN")
+		{
+			return throwError("Expected THEN keyword");
+		}
+
+		advance();
+		std::shared_ptr<Node> expression = expr();
+
+		Case next_case(condition, expression);
+
+		cases->push_back(next_case);
+	}
+
+	std::shared_ptr<Node> node;
+
+	if (currentToken->svalue == "ELSE") 
+	{
+		advance();
+		node = expr();
+	}
+
+
+
+	return std::make_shared<IfNode>(tok, cases, node);
 }
 
 

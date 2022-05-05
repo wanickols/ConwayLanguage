@@ -27,6 +27,7 @@ private:
 	Number visit(BinOpNode& binOpNode);
 	Number visit(VarAccessNode& binOpNode);
 	Number visit(VarAssignNode& binOpNode);
+	Number visit(IfNode& ifNode);
 
 	//ErrorHandling
 	void VarNotDefined(VarAccessNode& node);

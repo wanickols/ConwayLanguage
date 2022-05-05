@@ -2,12 +2,15 @@
 
 #include "Token.h"
 
+class Case;
+
 const enum nodeTypes
 {
 	NT_NumberNode = 0,
 	NT_BinOpNode,
 	NT_UnaryOpNode,
 	NT_VarAssignNode,
+	NT_IfNode,
 	NT_VarAccessNode,
 	NT_EmptyNode
 };
@@ -92,4 +95,14 @@ class VarAccessNode : public Node
 public:
 	VarAccessNode(Token& op_tok);
 	string represent() override;
+};
+
+class IfNode : public Node
+{
+public:
+	IfNode(Token& op_tok, std::shared_ptr<vector<Case>> cases, std::shared_ptr<Node> else_node);
+	string represent() override;
+
+	std::shared_ptr<vector<Case>> cases;
+	std::shared_ptr<Node> elseNode;
 };
