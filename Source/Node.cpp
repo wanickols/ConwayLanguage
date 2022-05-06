@@ -31,7 +31,7 @@ const std::shared_ptr<LinePosition> Node::getLinePosition() const
 
 
 //=======Number Node==========
-NumberNode::NumberNode(Token& tok) : Node(tok, nodeTypes::NT_NumberNode)
+NumberNode::NumberNode(Token& tok) : Node(tok, NT_NumberNode)
 {
 }
 
@@ -42,7 +42,7 @@ string NumberNode::represent()
 
 
 //=======BinOp Node==========
-BinOpNode::BinOpNode(std::shared_ptr<Node> left_node, Token& op_tok, std::shared_ptr<Node> right_node) : Node(op_tok, nodeTypes::NT_BinOpNode), leftNode(left_node), rightNode(right_node)
+BinOpNode::BinOpNode(std::shared_ptr<Node> left_node, Token& op_tok, std::shared_ptr<Node> right_node) : Node(op_tok, NT_BinOpNode), leftNode(left_node), rightNode(right_node)
 {
 }
 
@@ -53,7 +53,7 @@ string BinOpNode::represent()
 	return ss.str();
 }
 
-UnaryOpNode::UnaryOpNode(Token& op_tok, std::shared_ptr<Node> other_node) : Node(op_tok, nodeTypes::NT_UnaryOpNode), otherNode(other_node)
+UnaryOpNode::UnaryOpNode(Token& op_tok, std::shared_ptr<Node> other_node) : Node(op_tok, NT_UnaryOpNode), otherNode(other_node)
 {
 }
 
@@ -64,7 +64,7 @@ string UnaryOpNode::represent()
 	return ss.str();
 }
 
-VarAssignNode::VarAssignNode(Token& op_tok, string var_name, std::shared_ptr<Node> other_node, string var_type) : Node(op_tok, nodeTypes::NT_VarAssignNode), varName(var_name), valueNode(other_node), varType(var_type)
+VarAssignNode::VarAssignNode(Token& op_tok, string var_name, std::shared_ptr<Node> other_node, string var_type) : Node(op_tok, NT_VarAssignNode), varName(var_name), valueNode(other_node), varType(var_type)
 {
 }
 
@@ -76,7 +76,7 @@ string VarAssignNode::represent()
 	return ss.str();
 }
 
-VarAccessNode::VarAccessNode(Token& op_tok) : Node(op_tok, nodeTypes::NT_VarAccessNode)
+VarAccessNode::VarAccessNode(Token& op_tok) : Node(op_tok, NT_VarAccessNode)
 {
 }
 
@@ -87,7 +87,7 @@ string VarAccessNode::represent()
 	return ss.str();
 }
 
-IfNode::IfNode(Token& op_tok, std::shared_ptr<vector<Case>> cases, std::shared_ptr<Node> else_node) : Node(op_tok, nodeTypes::NT_IfNode), cases(cases), elseNode(else_node)
+IfNode::IfNode(Token& op_tok, std::shared_ptr<vector<Case>> cases, std::shared_ptr<Node> else_node) : Node(op_tok, NT_IfNode), cases(cases), elseNode(else_node)
 {
 
 }
@@ -120,5 +120,20 @@ string WhileNode::represent()
 	//Add Representation
 	stringstream ss;
 	ss << tok.Representation();
+	return ss.str();
+}
+
+ListNode::ListNode(Token& tok, std::shared_ptr<std::vector<Node>> element_nodes) : Node(tok , NT_ListNode), elementNodes(element_nodes)
+{
+}
+
+string ListNode::represent()
+{
+	stringstream ss;
+	ss << tok.Representation();
+
+	for (int i = 0; i < elementNodes->size(); i++)
+		ss << elementNodes->at(i).represent() << ", ";
+
 	return ss.str();
 }

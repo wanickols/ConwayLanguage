@@ -14,6 +14,7 @@ const enum nodeTypes
 	NT_IfNode,
 	NT_ForNode,
 	NT_WhileNode,
+	NT_ListNode,
 	NT_EmptyNode
 };
 
@@ -130,4 +131,13 @@ public:
 	string represent() override;
 
 	std::shared_ptr<Case> case_;
+};
+
+class ListNode : public Node
+{
+public:
+	ListNode(Token& op_tok, std::shared_ptr<std::vector<Node>> element_nodes);
+	string represent() override;
+
+	std::shared_ptr<std::vector<Node>> elementNodes;
 };

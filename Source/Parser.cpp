@@ -82,7 +82,12 @@ std::shared_ptr<Node> Parser::atom()
 			return throwError("Expected a )");
 		}
 	}
-	//IF keyword
+	//List
+	else if (type == T_LEFTBRAK)
+	{
+		return list_expr();
+	}
+	//IF/For/While 
 	else if (type == T_KEYWORD)
 	{
 		if (currentToken->svalue == "IF")
@@ -92,12 +97,12 @@ std::shared_ptr<Node> Parser::atom()
 		else if (currentToken->svalue == "WHILE")
 			return while_expr();
 		else
-			return throwError("Unknown Keyword");
+			return throwError("Expected IF, FOR, WHILE");
 	}
 	//Error
 	else {
 
-		return throwError("Expected a '(', '+', '-', INT,FLOAT, or IDENTIFIER");
+		return throwError("Expected a '(', '+', '-', ',', '[', INT,FLOAT, KEYWORD, or IDENTIFIER");
 
 	}
 }
@@ -230,6 +235,43 @@ std::shared_ptr<Node> Parser::expr()
 
 	return bin_op_key([this]() { return this->cmpr_expr(); }, BinKeywords);
 
+}
+//LEFTBRAK (expr COMMA expr RIGHTBRAK
+std::shared_ptr<Node> Parser::list_expr()
+{
+	std::shared_ptr<vector<Node>> elementNodes = std::make_shared<vector<Node>>();
+	Token& tok = *currentToken;
+
+	advance();
+
+	if (currentToken->getType() == tokenTypes::T_RIGHTBRAK)
+	{
+		advance();
+	}
+	else
+	{
+		elementNodes->push_back(*expr());
+
+		while (currentToken->getType() == tokenTypes::T_COMMA)
+		{
+			advance();
+
+			elementNodes->push_back(*expr());
+
+			if (currentToken->getType() != tokenTypes::T_RIGHTBRAK) 
+			{
+				throwError("Expected ] or '(', '+', '-', ',', '[', INT,FLOAT, KEYWORD, IDENTIFIER");
+			}
+
+			advance();
+		}
+
+	}
+
+
+
+
+	return std::make_shared<ListNode>(*currentToken, elementNodes);
 }
 
 

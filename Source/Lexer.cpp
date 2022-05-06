@@ -71,6 +71,15 @@ void Lexer::make_tokens()
 			case ')':
 				tokens.push_back(Token(tokenTypes::T_RIGHTPAR, NULL, pos));
 				break;
+			case '[':
+				tokens.push_back(Token(tokenTypes::T_LEFTBRAK, NULL, pos));
+				break;
+			case ']':
+				tokens.push_back(Token(tokenTypes::T_RIGHTBRAK, NULL, pos));
+				break;
+			case ',':
+				tokens.push_back(Token(tokenTypes::T_COMMA, NULL, pos));
+				break;
 			case '^':
 				tokens.push_back(Token(tokenTypes::T_POW, NULL, pos));
 				break;

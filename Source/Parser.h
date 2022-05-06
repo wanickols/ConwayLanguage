@@ -36,9 +36,10 @@ private:
 	std::shared_ptr<Node> arith_expr(); //Addition of Terms
 	std::shared_ptr<Node> cmpr_expr(); //Comparisons of Arithmetic Expressions
 	std::shared_ptr<Node> expr(); //Logical Expression
-	std::shared_ptr<Node> if_expr(); //Logical Expression
-	std::shared_ptr<Node> for_expr(); //Logical Expression
-	std::shared_ptr<Node> while_expr(); //Logical Expression
+	std::shared_ptr<Node> list_expr(); //List Expression
+	std::shared_ptr<Node> if_expr(); //If Expression
+	std::shared_ptr<Node> for_expr(); //For Expression
+	std::shared_ptr<Node> while_expr(); //While Expression
 
 
 	std::shared_ptr<Node> returnNotExpr();

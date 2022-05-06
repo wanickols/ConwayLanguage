@@ -4,6 +4,7 @@
 #include "Context.h"
 #include "SymbolTable.h"
 #include "Case.h"
+#include "List.h"
 
 Interpreter::Interpreter(std::shared_ptr<Context> context) : context(context), maxWhileSize(10000)
 {
@@ -66,6 +67,17 @@ Number Interpreter::visit(std::shared_ptr<Node> node)
 		else
 		{
 			CW_CORE_ERROR("Variable Assign node type explcitly declared and wrong");
+			return no_visit_method(node);
+		}
+		break;
+	case(nodeTypes::NT_ListNode):
+		if (ListNode* ifNd = dynamic_cast<ListNode*>(node.get()))
+		{
+			return visit(*ifNd);
+		}
+		else
+		{
+			CW_CORE_ERROR("Variable List node type explcitly declared and wrong");
 			return no_visit_method(node);
 		}
 		break;
@@ -254,6 +266,22 @@ Number Interpreter::visit(VarAssignNode& assignNode)
 	}
 	result.setValue(val);
 	return result;
+}
+
+Number Interpreter::visit(ListNode& listNode)
+{
+	List list();
+
+	std::shared_ptr<vector<Number>> nums = std::make_shared<vector<Number>>();
+
+	for (auto& i : *listNode.elementNodes) 
+	{
+		std::shared_ptr<Node> node = std::make_shared<Node>(i);
+
+		nums->push_back(this->visit(node));
+	}
+
+	return Number();
 }
 
 Number Interpreter::visit(IfNode& ifNode)
