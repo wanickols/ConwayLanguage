@@ -156,6 +156,7 @@
     <ClCompile Include="Source\Interpreter.cpp" />
     <ClCompile Include="Source\Lexer.cpp" />
     <ClCompile Include="Source\LinePosition.cpp" />
+    <ClCompile Include="Source\List.cpp" />
     <ClCompile Include="Source\Log.cpp" />
     <ClCompile Include="Source\Node.cpp" />
     <ClCompile Include="Source\Number.cpp" />
@@ -175,6 +176,7 @@
     <ClInclude Include="Source\Interpreter.h" />
     <ClInclude Include="Source\Lexer.h" />
     <ClInclude Include="Source\LinePosition.h" />
+    <ClInclude Include="Source\List.h" />
     <ClInclude Include="Source\Log.h" />
     <ClInclude Include="Source\Node.h" />
     <ClInclude Include="Source\Number.h" />

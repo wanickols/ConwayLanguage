@@ -29,7 +29,7 @@ private:
 	Number visit(BinOpNode& binOpNode);
 	Number visit(VarAccessNode& binOpNode);
 	Number visit(VarAssignNode& binOpNode);
-	Number visit(ListNode& ListNode);
+	Number visit(ListNode& listNode);
 	Number visit(IfNode& ifNode);
 	Number visit(ForNode& ForNode);
 	Number visit(WhileNode& WhileNode);

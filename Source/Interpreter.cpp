@@ -271,7 +271,7 @@ Number Interpreter::visit(VarAssignNode& assignNode)
 Number Interpreter::visit(ListNode& listNode)
 {
 	List list();
-
+ 
 	std::shared_ptr<vector<Number>> nums = std::make_shared<vector<Number>>();
 
 	for (auto& i : *listNode.elementNodes) 

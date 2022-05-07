@@ -37,6 +37,8 @@ static const char* typesString[]
 	"DIVIDE", // /
 	"LEFTPAR", //(
 	"RIGHTPAR", //)
+	"LEFTBRAK",
+	"RIGHTBRAK",
 	"INT", // Any Number e.g. 5
 	"FLOAT", // Any decimal number e.g 5.2
 	"TOPOWEROF", // ^
