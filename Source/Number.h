@@ -6,14 +6,14 @@ class Context;
 class Number
 {
 public:
-	Number(int value, std::shared_ptr<LinePosition> pos, std::shared_ptr<Context> context);
+	Number(std::any value, std::shared_ptr<LinePosition> pos, std::shared_ptr<Context> context);
 	Number();
 
-	int added_to(Number other);
-	int subbed_by(Number other);
-	int multed_by(Number other);
-	int power_of(Number other);
-	int dived_by(Number other);
+	std::any  added_to(Number other);
+	std::any  subbed_by(Number other);
+	std::any  multed_by(Number other);
+	std::any  power_of(Number other);
+	std::any  dived_by(Number other);
 	bool getComparison_EE(Number other);
 	bool getComparison_NE(Number other);
 	bool getComparison_LT(Number other);
@@ -24,14 +24,16 @@ public:
 	bool notted();
 
 	//Accessors
-	const int getValue() const;
-	void setValue(const int val);
+	const std::any getValue() const;
+	void setValue(const std::any val);
 	const bool getIsReal() const;
 	void setIsReal(const bool real);
 
+	const string represent();
+
 	const std::shared_ptr<LinePosition> getPosition() const;
 private:
-	int value;
+	std::any value;
 	bool isReal;
 	std::shared_ptr<LinePosition> position;
 	std::shared_ptr<Context> context;

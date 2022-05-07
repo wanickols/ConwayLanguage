@@ -160,11 +160,19 @@ Number Interpreter::visit(UnaryOpNode& unOpNode)
 	tokenTypes type = unOpNode.getTokenType();
 	if (type == tokenTypes::T_MINUS)
 	{
-		other.setValue(other.getValue() * -1);
+		int thisVal = 0;
+		try {
+			thisVal = any_cast<int>(other.getValue());
+		}catch(...) 
+		{
+			return throwError("No - Operator exist for Type given");
+	
+		}
+		other.setValue(thisVal * -1);
 	}
 	else if (type == tokenTypes::T_NOT) 
 	{
-	
+		other.notted();
 	}
 	return other;
 }
@@ -257,7 +265,14 @@ Number Interpreter::visit(VarAssignNode& assignNode)
 {
 	Number result(0, assignNode.getLinePosition(), context);
 	Number adder = visit(assignNode.valueNode);
-	int val = adder.getValue();
+	int val = 0;
+	try {
+		val = any_cast<int>(adder.getValue());
+	}catch(...)
+	{
+		return throwError("Invalid Type for Adder");
+	}
+
 	if(assignNode.varType != "Exist")
 		context->symbolTable->set(assignNode.varName, val, assignNode.varType);
 	else 
@@ -270,7 +285,7 @@ Number Interpreter::visit(VarAssignNode& assignNode)
 
 Number Interpreter::visit(ListNode& listNode)
 {
-	List list();
+	
  
 	std::shared_ptr<vector<Number>> nums = std::make_shared<vector<Number>>();
 
@@ -280,7 +295,9 @@ Number Interpreter::visit(ListNode& listNode)
 		nums->push_back(this->visit(listNode.elementNodes->at(i)));
 	}
 
-	return Number();
+	List list(nums);
+	
+	return Number(list, listNode.getLinePosition(), context);
 }
 
 Number Interpreter::visit(IfNode& ifNode)
@@ -289,7 +306,7 @@ Number Interpreter::visit(IfNode& ifNode)
 	for (int i = 0; i < ifNode.cases->size(); i++) 
 	{
 		Number cond = visit(ifNode.cases->at(i).condition);
-		if (cond.getValue())
+		if (cond.getValue().has_value())
 			return visit(ifNode.cases->at(i).expression);
 	}
 	if (ifNode.elseNode != nullptr)
@@ -310,12 +327,30 @@ Number Interpreter::visit(ForNode& forNode)
 	if (forNode.stepNode != nullptr) 
 	{
 		stepValue = visit(forNode.stepNode);
-		step = stepValue.getValue();
+		try {
+			step = any_cast<int>(stepValue.getValue());
+		}catch (...)
+		{
+			return throwError("Invalid Type for FOR loop Step");
+		}
 	}
 
+	int i = 0;
 	
-	int i = startValue.getValue();
-	int end = endValue.getValue();
+	try {
+		i = any_cast<int>(startValue.getValue());
+	}
+	catch(...){
+		return throwError("Invalid Type for FOR loop incrementer");
+	}
+	int end = 0;
+	try {
+		end = any_cast<int>(endValue.getValue());
+	}catch(...)
+	{
+		return throwError("Invalid Type for FOR loop target");
+	} 
+
 	if (step > 0) 
 	{
 		while (i < end) {
@@ -351,7 +386,7 @@ Number Interpreter::visit(WhileNode& whileNode)
 	while(true)
 	{
 		Number cond = visit(whileNode.case_->condition);
-		if (!cond.getValue())
+		if (!cond.getValue().has_value())
 			break;
 		
 		visit(whileNode.case_->expression);

@@ -6,18 +6,17 @@ class List
 {
 public:
 
-	List(std::shared_ptr<std::vector<std::any>> value, string type);
+	List(std::shared_ptr<std::vector<Number>> value);
 
-	List added_to(std::any value, string type);
+	List added_to(Number value);
+	List concatenated(Number value);
 
 	void remove(std::shared_ptr<Number> index);
 	std::any retrieve(std::shared_ptr<Number> index);
 	
-	const string& getValueType() const;
-	const std::shared_ptr<std::vector<std::any>> getValues() const;
+	const std::shared_ptr<std::vector<Number>> getValues() const;
 
 private:
-	string valueType;
-	std::shared_ptr<std::vector<std::any>> values;
+	std::shared_ptr<std::vector<Number>> values;
 };
 
