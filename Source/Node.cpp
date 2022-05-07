@@ -123,7 +123,7 @@ string WhileNode::represent()
 	return ss.str();
 }
 
-ListNode::ListNode(Token& tok, std::shared_ptr<std::vector<Node>> element_nodes) : Node(tok , NT_ListNode), elementNodes(element_nodes)
+ListNode::ListNode(Token& tok, std::shared_ptr<std::vector<std::shared_ptr<Node>>> element_nodes) : Node(tok , NT_ListNode), elementNodes(element_nodes)
 {
 }
 
@@ -133,7 +133,7 @@ string ListNode::represent()
 	ss << tok.Representation();
 
 	for (int i = 0; i < elementNodes->size(); i++)
-		ss << elementNodes->at(i).represent() << ", ";
+		ss << elementNodes->at(i)->represent() << ", ";
 
 	return ss.str();
 }

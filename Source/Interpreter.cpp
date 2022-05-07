@@ -274,11 +274,10 @@ Number Interpreter::visit(ListNode& listNode)
  
 	std::shared_ptr<vector<Number>> nums = std::make_shared<vector<Number>>();
 
-	for (auto& i : *listNode.elementNodes) 
+	for (int i = 0; i < listNode.elementNodes->size(); i++) 
 	{
-		std::shared_ptr<Node> node = std::make_shared<Node>(i);
 
-		nums->push_back(this->visit(node));
+		nums->push_back(this->visit(listNode.elementNodes->at(i)));
 	}
 
 	return Number();

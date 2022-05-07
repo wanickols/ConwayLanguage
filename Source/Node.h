@@ -136,8 +136,8 @@ public:
 class ListNode : public Node
 {
 public:
-	ListNode(Token& op_tok, std::shared_ptr<std::vector<Node>> element_nodes);
+	ListNode(Token& op_tok, std::shared_ptr<std::vector<std::shared_ptr<Node>>> element_nodes);
 	string represent() override;
 
-	std::shared_ptr<std::vector<Node>> elementNodes;
+	std::shared_ptr<std::vector<std::shared_ptr<Node>>> elementNodes;
 };

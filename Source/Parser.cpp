@@ -239,7 +239,7 @@ std::shared_ptr<Node> Parser::expr()
 //LEFTBRAK (expr COMMA expr RIGHTBRAK
 std::shared_ptr<Node> Parser::list_expr()
 {
-	std::shared_ptr<vector<Node>> elementNodes = std::make_shared<vector<Node>>();
+	std::shared_ptr<vector<std::shared_ptr<Node>>> elementNodes = std::make_shared<vector<std::shared_ptr<Node>>>();
 	Token& tok = *currentToken;
 
 	advance();
@@ -250,26 +250,27 @@ std::shared_ptr<Node> Parser::list_expr()
 	}
 	else
 	{
-		elementNodes->push_back(*expr());
+		elementNodes->push_back(expr());
 
 		while (currentToken->getType() == tokenTypes::T_COMMA)
 		{
 			advance();
 
-			elementNodes->push_back(*expr());
 
-			if (currentToken->getType() != tokenTypes::T_RIGHTBRAK) 
-			{
-				throwError("Expected ] or '(', '+', '-', ',', '[', INT,FLOAT, KEYWORD, IDENTIFIER");
-			}
+			elementNodes->push_back(expr());
 
-			advance();
+		
 		}
 
 	}
 
 
+	if (currentToken->getType() != tokenTypes::T_RIGHTBRAK)
+	{
+		throwError("Expected ] or '(', ',', '[', INT,FLOAT, KEYWORD, IDENTIFIER");
+	}
 
+	advance();
 
 	return std::make_shared<ListNode>(*currentToken, elementNodes);
 }
