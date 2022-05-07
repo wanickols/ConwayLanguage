@@ -33,6 +33,9 @@ private:
 	Number visit(IfNode& ifNode);
 	Number visit(ForNode& ForNode);
 	Number visit(WhileNode& WhileNode);
+	Number visit(CellNode& CellNode);
+	Number visit(GridNode& GridNode);
+	Number visit(MakeAlive& MakeAliveNode);
 
 	//ErrorHandling
 	Number VarNotDefined(VarAccessNode& node);

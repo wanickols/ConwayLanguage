@@ -47,7 +47,13 @@ Token::Token(tokenTypes type, string value, std::shared_ptr<LinePosition> pos_st
 std::string Token::Representation()
 {
 	std::stringstream rpr;
-	rpr << typesString[type];
+	if(type == tokenTypes::T_KEYWORD)
+	{
+		rpr << svalue;
+	}
+	else {
+		rpr << typesString[type];
+	}
 	if (value != NULL) {
 		rpr << ":" << value;
 	}

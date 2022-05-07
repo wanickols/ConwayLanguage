@@ -15,6 +15,9 @@ const enum nodeTypes
 	NT_ForNode,
 	NT_WhileNode,
 	NT_ListNode,
+	NT_CellNode,
+	NT_GridNode,
+	NT_AliveNode,
 	NT_EmptyNode
 };
 
@@ -140,4 +143,34 @@ public:
 	string represent() override;
 
 	std::shared_ptr<std::vector<std::shared_ptr<Node>>> elementNodes;
+};
+
+class CellNode : public Node
+{
+public:
+	CellNode(Token& op_tok, std::shared_ptr<Node> isAliveBool);
+	string represent() override;
+
+	std::shared_ptr<Node> isAlive;
+};
+
+class GridNode : public Node
+{
+public:
+	GridNode(Token& tok, std::shared_ptr<Node> width, std::shared_ptr<Node> height, string gridname);
+	string represent() override;
+
+	std::shared_ptr<Node> width; //width can also be only valid node
+	std::shared_ptr<Node> height;
+	string gridName;
+};
+
+class MakeAlive : public Node
+{
+public:
+	MakeAlive(Token& tok, std::shared_ptr<Node> aliveTable);
+	string represent() override;
+
+	std::shared_ptr<Node> aliveTable; //list of list of bools
+
 };

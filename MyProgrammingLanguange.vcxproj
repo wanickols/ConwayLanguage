@@ -150,9 +150,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Source\Case.cpp" />
+    <ClCompile Include="Source\Cell.cpp" />
     <ClCompile Include="Source\Constants.cpp" />
     <ClCompile Include="Source\Context.cpp" />
     <ClCompile Include="Source\Error.cpp" />
+    <ClCompile Include="Source\Grid.cpp" />
     <ClCompile Include="Source\Interpreter.cpp" />
     <ClCompile Include="Source\Lexer.cpp" />
     <ClCompile Include="Source\LinePosition.cpp" />
@@ -170,9 +172,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Case.h" />
+    <ClInclude Include="Source\Cell.h" />
     <ClInclude Include="Source\Constants.h" />
     <ClInclude Include="Source\Context.h" />
     <ClInclude Include="Source\Error.h" />
+    <ClInclude Include="Source\Grid.h" />
     <ClInclude Include="Source\Interpreter.h" />
     <ClInclude Include="Source\Lexer.h" />
     <ClInclude Include="Source\LinePosition.h" />

@@ -137,3 +137,40 @@ string ListNode::represent()
 
 	return ss.str();
 }
+
+CellNode::CellNode(Token& tok, std::shared_ptr<Node> isAliveBool) : Node(tok, NT_CellNode), isAlive(isAliveBool)
+{
+}
+
+string CellNode::represent()
+{
+	stringstream ss;
+	ss << tok.Representation() << '(' << isAlive->represent() << ')';
+	return ss.str();
+}
+
+GridNode::GridNode(Token& tok, std::shared_ptr<Node> width, std::shared_ptr<Node> height, string grid_name) : Node(tok, NT_GridNode), width(width), height(height), gridName(grid_name)
+{
+}
+
+string GridNode::represent()
+{
+	stringstream ss;
+	if(height != nullptr)
+		ss << tok.Representation() << '(' << width->represent() << ", " << height->represent() << ')';
+	else 
+		ss << tok.Representation() << '(' << width->represent() << ')';
+
+	return ss.str();
+}
+
+MakeAlive::MakeAlive(Token& tok, std::shared_ptr<Node> aliveTable) : Node(tok, NT_AliveNode), aliveTable(aliveTable)
+{
+}
+
+string MakeAlive::represent()
+{
+	stringstream ss;
+	ss << tok.Representation() << '(' << aliveTable->represent() << ')';
+	return ss.str();
+}

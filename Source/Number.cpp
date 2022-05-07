@@ -3,6 +3,8 @@
 #include "LinePosition.h"
 #include "Context.h"
 #include "List.h"
+#include "Cell.h"
+#include "Grid.h"
 
 Number::Number(std::any value, std::shared_ptr<LinePosition> pos, std::shared_ptr<Context> context) : value(value), position(pos), context(context), isReal(true)
 {
@@ -15,118 +17,145 @@ Number::Number() : value(0), position(nullptr), context(nullptr), isReal(false)
 
 std::any Number::added_to(Number other)
 {
+
+	//Integer
 	int thisVal = 0;
+	int othVal = 0;
 	try {
 		thisVal = any_cast<int>(value);
-	}
-	catch (...)
-	{
 
 		
-		List* thisList;
-		try
-		{
-			thisList = new List(any_cast<List>(value));
+		try {
+			othVal = any_cast<int>(other.value);
 		}
-		catch (...) {
-			CW_CORE_ERROR("A + Operator Does Not exist for this type");
+		catch (...)
+		{
+			CW_CORE_ERROR("Tried to add an Integer by a non Integer");
 			return -1;
 		}
 
-		return thisList->added_to(other);
+		return thisVal + othVal;
 
-	
 	}
+	catch (...){}
 
-	int othVal = 0;
-	try {
-		othVal = any_cast<int>(other.value);
-	}
-	catch (...)
+	//List
+	List* thisList;
+	try
 	{
-		CW_CORE_ERROR("Tried to add an Integer by a non Integer");
-		return -1;
+		thisList = new List(any_cast<List>(value));
+		return thisList->added_to(other);
 	}
+	catch (...) {}
 
-	return thisVal + othVal;
+	//Grid
+	std::shared_ptr<Grid> grid;
+	try
+	{
+		grid = any_cast<std::shared_ptr<Grid>>(value);
+		grid->expand(other);
+		return grid;
+	}
+	catch (...) {}
 
+	//Error
+	CW_CORE_ERROR("A + Operator Does Not exist for this type");
+	return -1;
 }
 
 std::any Number::subbed_by(Number other)
 {
-	
+	//Integer
 	int thisVal = 0;
 	try {
 		thisVal = any_cast<int>(value);
-	}
-	catch (...)
-	{
-		List* thisList;
-		try
-		{
-			thisList = new List(any_cast<List>(value));
+
+		int othVal = 0;
+		try {
+			othVal = any_cast<int>(other.value);
 		}
-		catch (...) {
-			CW_CORE_ERROR("A - Operator Does Not exist for this type");
+		catch (...)
+		{
+			CW_CORE_ERROR("Tried to subtract an Integer by a non Integer");
 			return -1;
 		}
+
+		return thisVal - othVal;
+	}
+	catch (...){}
+
+	//List
+	List* thisList;
+	try
+	{
+		thisList = new List(any_cast<List>(value));
 
 		thisList->remove(std::make_shared<Number>(other));
 
 		return *thisList;
-	}
 
-	int othVal = 0;
-	try {
-		othVal = any_cast<int>(other.value);
 	}
-	catch (...)
+	catch (...) {}
+
+	//Grid
+	std::shared_ptr<Grid> grid;
+	try
 	{
-		CW_CORE_ERROR("Tried to subtract an Integer by a non Integer");
-		return -1;
+		grid = any_cast<std::shared_ptr<Grid>>(value);
+		grid->shrink(other);
+		return grid;
 	}
+	catch (...) {}
 
-	return thisVal - othVal;
+	//Error
+	CW_CORE_ERROR("A - Operator Does Not exist for this type");
+	return -1;
 }
 
 std::any  Number::multed_by(Number other)
 {
+	//integer
 	int thisVal = 0;
 	try {
 		thisVal = any_cast<int>(value);
-	}
-	catch (...)
-	{
 
-		List* thisList;
-		try
-		{
-			thisList = new List(any_cast<List>(value));
+		int othVal = 0;
+		try {
+			othVal = any_cast<int>(other.value);
 		}
-		catch (...) {
-			CW_CORE_ERROR("A * Operator Does Not exist for this type");
+		catch (...)
+		{
+			CW_CORE_ERROR("Tried to multiply an Integer by a non Integer");
 			return -1;
 		}
+		return thisVal * othVal;
+	}
+	catch (...) {}
+
+	//List
+	List* thisList;
+	try
+	{
+		thisList = new List(any_cast<List>(value));
 
 		return thisList->concatenated(other);
 	}
-
-	int othVal = 0;
-	try {
-		othVal = any_cast<int>(other.value);
-	}
-	catch (...)
-	{
-		CW_CORE_ERROR("Tried to multiply an Integer by a non Integer");
-		return -1;
+	catch (...) {
+		
 	}
 
-	return thisVal * othVal;
+	//Grid multiply size
+
+	//Error
+	CW_CORE_ERROR("A * Operator Does Not exist for this type");
+	return -1;
+
+	
 }
 
 std::any Number::power_of(Number other)
 {
-
+	
 	int thisVal = 0;
 	try {
 		thisVal = any_cast<int>(value);
@@ -424,40 +453,69 @@ void Number::setIsReal(const bool real)
 
 const string Number::represent()
 {
+
+	//Integer
 	int thisVal = 0;
 	
 	try {
 		thisVal = any_cast<int>(value);
-	}
-	catch (...)
-	{
-		
-		List* thisList;
 
-		try
-		{
-			thisList = new List(any_cast<List>(value));
-		}
-		catch (...)
-		{
-			return " ";
-		}
 		stringstream ss;
+		ss << thisVal;
+		return ss.str();
+	}
+	catch (...) {}
+
+	Cell* cell;
+	try
+	{
+		cell = new Cell(any_cast<Cell>(value));
+
+		stringstream ss;
+		ss << cell->representation();
+		delete cell;
+		return ss.str();
+	}
+	catch (...) {}
+
+	//Grid
+	std::shared_ptr<Grid> grid;
+	try
+	{
+		grid = any_cast<std::shared_ptr<Grid>>(value);
+
+		stringstream ss;
+		ss << grid->represent();
+		return ss.str();
+	}
+	catch (...) {}
+
+	//MakeAlive?
+
+	//List
+	List* thisList;
+
+	try
+	{
+
+		thisList = new List(any_cast<List>(value));
+
+		stringstream ss;
+
 		ss << '[';
-		//List prints each value
-		for (int i = 0; i < thisList->getValues()->size() - 1; i++) {
-			 ss << thisList->getValues()->at(i).represent() << ", ";
+		for (int i = 0; i < thisList->getValues()->size() - 1; i++) { //List prints each value 
+			ss << thisList->getValues()->at(i).represent() << ", ";
 		}
-		ss << thisList->getValues()->back().represent();
-		ss << ']';
+		ss << thisList->getValues()->back().represent() << ']';
+
 		delete thisList;
 		return ss.str();
 	}
+	catch (...) { }
 
-	//Integer
-	stringstream ss; 
-	ss << thisVal;
-	return ss.str();
+
+	//No Valid Type Found
+	return " ";
 }
 
 const std::shared_ptr<LinePosition> Number::getPosition() const

@@ -39,6 +39,7 @@ std::shared_ptr<Node> Parser::parse()
 
 // : INT|FLOAT|IDENTIFIER 
 // : LPAREN expr RPAREN
+// : Keywords
 std::shared_ptr<Node> Parser::atom()
 {
 	const tokenTypes& type = currentToken->getType();
@@ -87,7 +88,7 @@ std::shared_ptr<Node> Parser::atom()
 	{
 		return list_expr();
 	}
-	//IF/For/While 
+	//IF/For/While/Cell/Grid/MakeAlive 
 	else if (type == T_KEYWORD)
 	{
 		if (currentToken->svalue == "IF")
@@ -96,6 +97,12 @@ std::shared_ptr<Node> Parser::atom()
 			return for_expr();
 		else if (currentToken->svalue == "WHILE")
 			return while_expr();
+		else if (currentToken->svalue == "Cell")
+			return cell_expr();
+		else if (currentToken->svalue == "Grid")
+			return grid_expr();
+		else if (currentToken->svalue == "MakeAlive")
+			return makeAlive_expr();
 		else
 			return throwError("Expected IF, FOR, WHILE");
 	}
@@ -247,6 +254,7 @@ std::shared_ptr<Node> Parser::list_expr()
 	if (currentToken->getType() == tokenTypes::T_RIGHTBRAK)
 	{
 		advance();
+		return std::make_shared<ListNode>(*currentToken, elementNodes);
 	}
 	else
 	{
@@ -267,13 +275,135 @@ std::shared_ptr<Node> Parser::list_expr()
 
 	if (currentToken->getType() != tokenTypes::T_RIGHTBRAK)
 	{
-		throwError("Expected ] or '(', ',', '[', INT,FLOAT, KEYWORD, IDENTIFIER");
+		return throwError("Expected ] or '(', ',', '[', INT,FLOAT, KEYWORD, IDENTIFIER");
 	}
 
 	advance();
 
 	return std::make_shared<ListNode>(*currentToken, elementNodes);
 }
+
+
+// KEYWORD:Cell LEFT PAR expr RIGHT PAR
+std::shared_ptr<Node> Parser::cell_expr()
+{
+	Token& tok = *currentToken;
+	if (currentToken->svalue != "Cell")
+	{
+		return throwError("Expected Cell keyword");
+	}
+
+	advance();
+
+	if (currentToken->getType() != tokenTypes::T_LEFTPAR)
+	{
+		return throwError("Expected a (");
+	}
+
+	advance();
+
+	std::shared_ptr<Node> boolAlive = expr();
+
+	if (currentToken->getType() != tokenTypes::T_RIGHTPAR)
+	{
+		return throwError("Expected a )");
+	}
+
+	advance();
+
+	return std::make_shared<CellNode>(tok, boolAlive);
+}
+
+// KEYWORD:Grid LEFT PAR expr COMMA? expr? RIGHT PAR
+std::shared_ptr<Node> Parser::grid_expr()
+{
+	Token& tok = *currentToken;
+
+	if (currentToken->svalue != "Grid")
+	{
+		return throwError("Expected Grid keyword");
+	}
+
+	advance();
+
+	if (currentToken->getType() != tokenTypes::T_IDENTIFIER)
+	{
+		return throwError("Expected Variable Name");
+	}
+	string varname = currentToken->svalue;
+	advance();
+
+	if (currentToken->getType() != tokenTypes::T_LEFTPAR)
+	{
+		return throwError("Expected a (");
+	}
+
+	advance();
+
+	std::shared_ptr<Node> width = expr();
+	std::shared_ptr<Node> height = nullptr;
+
+	if (currentToken->getType() == tokenTypes::T_RIGHTPAR)
+	{
+		advance();
+		return std::make_shared<GridNode>(tok, width, height, varname);
+	}
+	else
+	{
+		
+
+		if (currentToken->getType() == tokenTypes::T_COMMA)
+		{
+			advance();
+
+			height = expr();
+
+		}
+
+	}
+
+	if (currentToken->getType() != tokenTypes::T_RIGHTPAR)
+	{
+		return throwError("Expected a )");
+	}
+
+	advance();
+
+	return std::make_shared<GridNode>(tok, width, height, varname);
+}
+
+// KEYWORD:MakeAlive LEFT PAR list_expr RIGHT PAR
+std::shared_ptr<Node> Parser::makeAlive_expr()
+{
+	Token& tok = *currentToken;
+
+	if (currentToken->svalue != "MakeAlive")
+	{
+		return throwError("Expected MakeAlive keyword");
+	}
+
+	advance();
+
+	if (currentToken->getType() != tokenTypes::T_LEFTPAR)
+	{
+		return throwError("Expected a (");
+	}
+
+	advance();
+
+	std::shared_ptr<Node> table = list_expr();
+
+
+	if (currentToken->getType() != tokenTypes::T_RIGHTPAR)
+	{
+		return throwError("Expected a )");
+	}
+
+	advance();
+
+	return std::make_shared<MakeAlive>(tok, table);
+}
+
 
 
 // KEYWORD:IF expr KEYWORD:THEN expr 

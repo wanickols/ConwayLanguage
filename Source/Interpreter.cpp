@@ -5,6 +5,9 @@
 #include "SymbolTable.h"
 #include "Case.h"
 #include "List.h"
+#include "Cell.h"
+#include "Grid.h"
+
 
 Interpreter::Interpreter(std::shared_ptr<Context> context) : context(context), maxWhileSize(10000)
 {
@@ -111,6 +114,39 @@ Number Interpreter::visit(std::shared_ptr<Node> node)
 		else
 		{
 			CW_CORE_ERROR("Variable While node type explcitly declared and wrong");
+			return no_visit_method(node);
+		}
+		break;
+	case(nodeTypes::NT_CellNode):
+		if (CellNode* cellNode = dynamic_cast<CellNode*>(node.get()))
+		{
+			return visit(*cellNode);
+		}
+		else
+		{
+			CW_CORE_ERROR("Cell node type explcitly declared and wrong");
+			return no_visit_method(node);
+		}
+		break;
+	case(nodeTypes::NT_GridNode):
+		if (GridNode* gridNode = dynamic_cast<GridNode*>(node.get()))
+		{
+			return visit(*gridNode);
+		}
+		else
+		{
+			CW_CORE_ERROR("Grid node type explcitly declared and wrong");
+			return no_visit_method(node);
+		}
+		break;
+	case(nodeTypes::NT_AliveNode):
+		if (MakeAlive* aliveNode = dynamic_cast<MakeAlive*>(node.get()))
+		{
+			return visit(*aliveNode);
+		}
+		else
+		{
+			CW_CORE_ERROR("Alive node type explcitly declared and wrong");
 			return no_visit_method(node);
 		}
 		break;
@@ -247,6 +283,10 @@ Number Interpreter::visit(VarAccessNode& accessNode)
 		CW_CORE_WARN("There is no floats in this game! :D");
 		int i = (int)f;
 		result.setValue(i);
+	}
+	else if (type_name == "Grid") 
+	{
+		result.setValue(std::any_cast<std::shared_ptr<Grid>>(pair_val->second));
 	}
 	else 
 	{
@@ -396,6 +436,44 @@ Number Interpreter::visit(WhileNode& whileNode)
 	
 	}
 
+	return Number();
+}
+
+Number Interpreter::visit(CellNode& cellNode)
+{
+	Number isAlive = visit(cellNode.isAlive);
+
+	int alive = 0;
+	try {
+		alive = any_cast<int>(isAlive.getValue());
+	}
+	catch (...) 
+	{
+		throwError("Invalid Cell Initialization Type. Expected an Int");
+	}
+
+	Cell cell(alive);
+	
+	return Number(cell, cellNode.getLinePosition(), context);
+}
+
+Number Interpreter::visit(GridNode& gridNode)
+{
+	std::shared_ptr<Number> width = std::make_shared<Number>(visit(gridNode.width));
+	std::shared_ptr<Number> height = nullptr;
+	if (gridNode.height != nullptr) {
+		height = std::make_shared<Number>(visit(gridNode.height));
+	}
+	
+	std::shared_ptr<Grid> grid = std::make_shared<Grid>(width, height);
+
+	context->symbolTable->set(gridNode.gridName, grid, "Grid");
+	
+	return Number(grid, gridNode.getLinePosition(), context);
+}
+
+Number Interpreter::visit(MakeAlive& makeAliveNode)
+{
 	return Number();
 }
 
