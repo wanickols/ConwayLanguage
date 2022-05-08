@@ -391,6 +391,21 @@ std::shared_ptr<Node> Parser::makeAlive_expr()
 
 	advance();
 
+	if (currentToken->getType() != tokenTypes::T_IDENTIFIER)
+	{
+		return throwError("Expected Grid Name");
+	}
+	string gridName = currentToken->svalue;
+	advance();
+
+
+	if (currentToken->getType() != tokenTypes::T_COMMA)
+	{
+		return throwError("Expected a ,");
+	}
+	
+	advance();
+
 	std::shared_ptr<Node> table = list_expr();
 
 
@@ -401,7 +416,7 @@ std::shared_ptr<Node> Parser::makeAlive_expr()
 
 	advance();
 
-	return std::make_shared<MakeAlive>(tok, table);
+	return std::make_shared<MakeAlive>(tok, gridName, table);
 }
 
 

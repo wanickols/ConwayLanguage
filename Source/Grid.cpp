@@ -2,6 +2,7 @@
 #include "Grid.h"
 #include "Cell.h"
 #include "Number.h"
+#include "List.h"
 
 void Grid::InitCells()
 {
@@ -20,6 +21,29 @@ void Grid::InitCells()
             grid->at(i).emplace_back(std::make_shared<Cell>(false));
         }
     }
+}
+
+void Grid::InitAliveTable()
+{
+    //Table
+    aliveTable = std::make_shared<vector<vector<bool>>>();
+
+   //Table Init
+    aliveTable->reserve(width);
+    for (int i = 0; i < width; i++)
+    {
+        aliveTable->emplace_back(vector<bool>());
+        aliveTable->at(i).reserve(height);
+    }
+
+    for (int i = 0; i < grid->size(); i++)
+    {
+        for (int j = 0; j < height; j++)
+        {
+            aliveTable->at(i).emplace_back(false);
+        }
+    }
+
 }
 
 void Grid::calculateNeighbors()
@@ -49,6 +73,9 @@ Grid::Grid(std::shared_ptr<Number> N_width, std::shared_ptr<Number> N_height)
     //Make Grid of dead cells
     InitCells();
 
+    //Makes table of bools for makeAlive to reuse
+    InitAliveTable();
+
     //Attach Neighbors
     calculateNeighbors();
 
@@ -75,8 +102,31 @@ void Grid::setWidthHeight(std::shared_ptr<Number> N_width, std::shared_ptr<Numbe
     }
 }
 
-void Grid::makeAlive(std::shared_ptr<std::vector<std::vector<bool>>> aliveTable)
+void Grid::makeAlive(std::shared_ptr<std::vector<List>> listTable)
 {
+
+    //Size Error Check
+    if (listTable->size() > width || (!listTable->empty() && listTable->at(0).getValues() != nullptr && listTable->at(0).getValues()->size() > height))
+    {
+        CW_CORE_ERROR("Cannot Put in a List Larger than Grid");
+        return;
+    }
+
+    //Trying to get values from vector of list
+    try {
+        for (int i = 0; i < listTable->size(); i++) {
+
+            for (int j = 0; j < listTable->at(i).getValues()->size(); j++) {
+                aliveTable->at(i).at(j) = (bool)any_cast<int>(listTable->at(i).getValues()->at(j).getValue());
+            }
+        }
+    }
+    catch (...)
+    {
+        CW_CORE_ERROR("Exepected a List of List of Bools");
+        return; 
+    }
+
     for (int i = 0; i < grid->size(); i++)
     {
         for (int j = 0; j < grid->at(i).size(); j++)

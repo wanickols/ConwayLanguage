@@ -474,7 +474,47 @@ Number Interpreter::visit(GridNode& gridNode)
 
 Number Interpreter::visit(MakeAlive& makeAliveNode)
 {
-	return Number();
+
+	string varName = makeAliveNode.gridName;
+	std::shared_ptr<std::pair<string, std::any>> pair_val = context->symbolTable->get(varName);
+
+	string type_name = context->symbolTable->get(varName)->first;
+
+	if (type_name != "Grid")
+	{
+		return throwError("Expected a Grid in Function: " + makeAliveNode.represent());
+	}
+
+	std::shared_ptr<Grid> grid = std::any_cast<std::shared_ptr<Grid>>(pair_val->second);
+
+	
+	Number n = visit(makeAliveNode.aliveTable);
+
+	List* l;
+	try {
+		l = new List(any_cast<List>(n.getValue()));
+	}
+	catch (...) 
+	{
+		return throwError("Exepected a List");
+	}
+
+	shared_ptr<vector<List>> lists = std::make_shared<vector<List>>();
+	
+	try {
+		for (int i = 0; i < l->getValues()->size(); i++) {
+			lists->push_back(any_cast<List>(l->getValues()->at(i).getValue()));
+		}
+	}
+	catch (...) 
+	{
+		return throwError("Exepected a List of List");
+	}
+
+
+	grid->makeAlive(lists);
+
+	return Number(grid, makeAliveNode.getLinePosition(), context);
 }
 
 Number Interpreter::VarNotDefined(VarAccessNode& node)

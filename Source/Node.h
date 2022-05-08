@@ -168,9 +168,10 @@ public:
 class MakeAlive : public Node
 {
 public:
-	MakeAlive(Token& tok, std::shared_ptr<Node> aliveTable);
+	MakeAlive(Token& tok, string gridname, std::shared_ptr<Node> aliveTable);
 	string represent() override;
 
 	std::shared_ptr<Node> aliveTable; //list of list of bools
+	string gridName;
 
 };

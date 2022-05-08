@@ -190,34 +190,35 @@ std::any Number::dived_by(Number other)
 	int thisVal = 0;
 	try {
 		thisVal = any_cast<int>(value);
-	}
-	catch (...)
-	{
-		List* thisList;
-		try
-		{
-			thisList = new List(any_cast<List>(value));
+
+		
+		//}
+		int othVal = 0;
+		try {
+			othVal = any_cast<int>(other.value);
 		}
-		catch (...) {
-			CW_CORE_ERROR("A / Operator Does Not exist for this type");
+		catch (...)
+		{
+			CW_CORE_ERROR("Tried to divide an Integer by a non Integer");
 			return -1;
 		}
 
-		return thisList->retrieve(std::make_shared<Number>(other));
-		//}
+		return thisVal / othVal;
 	}
-
-	int othVal = 0;
-	try {
-		othVal = any_cast<int>(other.value);
-	}
-	catch (...)
+	catch (...) {}
+	
+	List* thisList;
+	try
 	{
-		CW_CORE_ERROR("Tried to divide an Integer by a non Integer");
-		return -1;
-	}
+		thisList = new List(any_cast<List>(value));
 
-	return thisVal / othVal;
+		return thisList->retrieve(std::make_shared<Number>(other));
+	}
+	catch (...) {}
+
+	CW_CORE_ERROR("A / Operator Does Not exist for this type");
+	return -1;
+	
 	
 }
 

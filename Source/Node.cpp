@@ -164,7 +164,7 @@ string GridNode::represent()
 	return ss.str();
 }
 
-MakeAlive::MakeAlive(Token& tok, std::shared_ptr<Node> aliveTable) : Node(tok, NT_AliveNode), aliveTable(aliveTable)
+MakeAlive::MakeAlive(Token& tok, string gridname, std::shared_ptr<Node> aliveTable) : Node(tok, NT_AliveNode), aliveTable(aliveTable), gridName(gridname)
 {
 }
 
