@@ -3,6 +3,7 @@
 #include "Node.h"
 
 class Number;
+class Grid;
 class Context;
 
 class Interpreter
@@ -34,7 +35,8 @@ private:
 	Number visit(ForNode& ForNode);
 	Number visit(WhileNode& WhileNode);
 	Number visit(CellNode& CellNode);
-	Number visit(GridNode& GridNode);
+	Number visit(FuncNode& FuncNode);
+	std::shared_ptr<Grid> findGrid(FuncNode& FuncNode);
 	Number visit(MakeAlive& MakeAliveNode);
 
 	//ErrorHandling

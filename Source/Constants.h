@@ -72,7 +72,8 @@ static const std::vector<string> keywordList
 	"Cell",
 	"Grid",
 	"MakeAlive",
-	"Run"
+	"Run",
+	"Delay",
 	"IF",
 	"THEN",
 	"ELIF",
@@ -83,13 +84,6 @@ static const std::vector<string> keywordList
 	"TO"
 };
 
-//Variable types
-const enum VARIABLE_TYPES
-{
-	Int = 0,
-	Float,
-	GRID
-};
 
 //Keyword Class that contains and hashes keywords
 class Keywords

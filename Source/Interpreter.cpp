@@ -128,10 +128,10 @@ Number Interpreter::visit(std::shared_ptr<Node> node)
 			return no_visit_method(node);
 		}
 		break;
-	case(nodeTypes::NT_GridNode):
-		if (GridNode* gridNode = dynamic_cast<GridNode*>(node.get()))
+	case(nodeTypes::NT_FuncNode):
+		if (FuncNode* funcNode = dynamic_cast<FuncNode*>(node.get()))
 		{
-			return visit(*gridNode);
+			return visit(*funcNode);
 		}
 		else
 		{
@@ -305,13 +305,28 @@ Number Interpreter::visit(VarAssignNode& assignNode)
 {
 	Number result(0, assignNode.getLinePosition(), context);
 	Number adder = visit(assignNode.valueNode);
-	int val = 0;
+	std::shared_ptr<Grid> val = nullptr;
+	
+	//Grid
 	try {
-		val = any_cast<int>(adder.getValue());
+		val = any_cast<std::shared_ptr<Grid>>(adder.getValue());
 	}catch(...)
 	{
-		return throwError("Invalid Type for Adder");
+		//int
+		int val1 = 0;
+		try {
+			val1 = any_cast<int>(adder.getValue());
+		}
+
+		//None
+		catch (...)
+		{
+			return throwError("Invalid Type for Adder");
+		}
 	}
+
+	
+	
 
 	if(assignNode.varType != "Exist")
 		context->symbolTable->set(assignNode.varName, val, assignNode.varType);
@@ -457,19 +472,128 @@ Number Interpreter::visit(CellNode& cellNode)
 	return Number(cell, cellNode.getLinePosition(), context);
 }
 
-Number Interpreter::visit(GridNode& gridNode)
+Number Interpreter::visit(FuncNode& funcNode)
 {
-	std::shared_ptr<Number> width = std::make_shared<Number>(visit(gridNode.width));
-	std::shared_ptr<Number> height = nullptr;
-	if (gridNode.height != nullptr) {
-		height = std::make_shared<Number>(visit(gridNode.height));
-	}
-	
-	std::shared_ptr<Grid> grid = std::make_shared<Grid>(width, height);
+	if (funcNode.varType == "Grid") {
+		//Argument Size Check
+		if (funcNode.arguments->empty())
+			return throwError("Expected Arguments: " + funcNode.getLinePosition()->represent());
+		else if (funcNode.arguments->size() > 2)
+			CW_CORE_WARN("Grid Function only takes in twp parameters. Only the first two will be used.");
 
-	context->symbolTable->set(gridNode.gridName, grid, "Grid");
+		//Parameters of grid
+		std::shared_ptr<Number> width = std::make_shared<Number>(visit(funcNode.arguments->at(0)));
+		std::shared_ptr<Number> height = nullptr;
+		try 
+		{
+			height = std::make_shared<Number>(visit(funcNode.arguments->at(1)));
+		}
+		catch (...){}
+
+		//Make grid
+		std::shared_ptr<Grid> grid = std::make_shared<Grid>(width, height);
+
+		//Set grid in context
+		if(funcNode.varName != "")
+			context->symbolTable->set(funcNode.varName, grid, funcNode.varType);
+
+		return Number(grid, funcNode.getLinePosition(), context);
+	}
+	else if (funcNode.varType == "Run") 
+	{
+		//Argument Size Check
+		if (funcNode.arguments->empty())
+			return throwError("Expected Arguments: " + funcNode.getLinePosition()->represent());
+		else if (funcNode.arguments->size() > 2)
+			CW_CORE_WARN("Run Function only takes in two parameters (Grid, Integer). Only the first will be used. ");
+
 	
-	return Number(grid, gridNode.getLinePosition(), context);
+		//Get Grid
+		std::shared_ptr<Grid> grid = findGrid(funcNode);
+
+		if (grid == nullptr) {
+			return throwError("Expected a Grid in Function: " + funcNode.represent());
+		}
+
+		//Set Run Time
+		std::shared_ptr<Number> time;
+		try {
+			 time = std::make_shared<Number>(visit(funcNode.arguments->at(1)));
+		}
+		catch (...) 
+		{
+			return throwError("Expected an integer (Seconds of Running). ");
+		}
+
+		//Play
+		grid->play(time);
+		
+		//End Game
+		return Number(grid, funcNode.getLinePosition(), context);
+		
+	}
+	else if (funcNode.varType == "Delay") 
+	{
+		//Argument Size Check
+		if (funcNode.arguments->empty())
+			return throwError("Expected Arguments: " + funcNode.getLinePosition()->represent());
+		else if (funcNode.arguments->size() > 2)
+			CW_CORE_WARN("Delay Function only takes in two parameters (Grid, Integer). Only the first will be used. ");
+
+		//Get Grid
+		std::shared_ptr<Grid> grid = findGrid(funcNode);
+
+		if (grid == nullptr) {
+			return throwError("Expected a Grid in Function: " + funcNode.represent());
+		}
+
+		//Set Delay
+		std::shared_ptr<Number> delay;
+		try {
+			delay = std::make_shared<Number>(visit(funcNode.arguments->at(1)));
+		}
+		catch (...)
+		{
+			return throwError("Expected an integer (In Milliseconds) for time of delay. ");
+		}
+
+		//Set Delay
+		grid->setDelay(delay);
+
+		//No return needed
+	}
+
+	//No Func Found
+	return Number();
+}
+
+std::shared_ptr<Grid> Interpreter::findGrid(FuncNode& funcNode)
+{
+	string varName = funcNode.arguments->at(0)->getToken().svalue;
+
+	std::shared_ptr<std::pair<string, std::any>> pair_val = context->symbolTable->get(varName);
+
+	string type_name = context->symbolTable->get(varName)->first;
+
+	std::shared_ptr<Grid> grid;
+	if (type_name != "Grid")
+	{
+		Number num = visit(funcNode.arguments->at(0));
+		try
+		{
+			grid = any_cast<std::shared_ptr<Grid>>(num.getValue());
+		}
+		catch (...) {
+
+			return nullptr; 
+		}
+	}
+	else
+	{
+		grid = any_cast<std::shared_ptr<Grid>>(context->symbolTable->get(varName)->second);
+	}
+
+	return grid;
 }
 
 Number Interpreter::visit(MakeAlive& makeAliveNode)

@@ -149,21 +149,6 @@ string CellNode::represent()
 	return ss.str();
 }
 
-GridNode::GridNode(Token& tok, std::shared_ptr<Node> width, std::shared_ptr<Node> height, string grid_name) : Node(tok, NT_GridNode), width(width), height(height), gridName(grid_name)
-{
-}
-
-string GridNode::represent()
-{
-	stringstream ss;
-	if(height != nullptr)
-		ss << tok.Representation() << '(' << width->represent() << ", " << height->represent() << ')';
-	else 
-		ss << tok.Representation() << '(' << width->represent() << ')';
-
-	return ss.str();
-}
-
 MakeAlive::MakeAlive(Token& tok, string gridname, std::shared_ptr<Node> aliveTable) : Node(tok, NT_AliveNode), aliveTable(aliveTable), gridName(gridname)
 {
 }
@@ -172,5 +157,22 @@ string MakeAlive::represent()
 {
 	stringstream ss;
 	ss << tok.Representation() << '(' << aliveTable->represent() << ')';
+	return ss.str();
+}
+
+FuncNode::FuncNode(Token& tok, std::shared_ptr<vector<shared_ptr<Node>>> arguments, string varname, string vartype) : Node(tok, NT_FuncNode), arguments(arguments), varName(varname), varType(vartype)
+{
+
+}
+
+string FuncNode::represent()
+{
+	stringstream ss;
+	ss << tok.Representation();
+	ss << '(';
+	for (int i = 0; i < arguments->size() -1; i++)
+		ss << arguments->at(i)->represent() << ", ";
+
+	ss << arguments->back()->represent() << ')';
 	return ss.str();
 }

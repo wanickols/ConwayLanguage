@@ -59,7 +59,7 @@ void Grid::calculateNeighbors()
 }
 
 
-Grid::Grid(std::shared_ptr<Number> N_width, std::shared_ptr<Number> N_height)
+Grid::Grid(std::shared_ptr<Number> N_width, std::shared_ptr<Number> N_height) : delayTime(400)
 {
     //Set width and height
     if (!N_height)
@@ -148,6 +148,38 @@ void Grid::calculateAlive()
     }
 }
 
+void Grid::play(std::shared_ptr<Number> time)
+{
+    float count = 1;
+    try
+    {
+        count = (float)any_cast<int>(time->getValue());
+    }
+    catch (...)
+    {
+        CW_CORE_ERROR("Invalid Value for Time. Expected an integer.");
+        return;
+    }
+
+    count *= (1000.f/delayTime); //Convert Seconds based on delayTime in milliseconds increments
+    
+  
+
+    //Runs game for set count
+    for (int i = 0; i < count; i++)
+    {
+ 
+        system("cls");
+        cout << represent();
+        cout << "Cycles Remaining: " << count - i - 1;
+        Sleep(delayTime);
+        calculateAlive();
+       
+    }
+    cout << "Cycles Remaining: " << 0;
+    system("cls");
+}
+
 void Grid::expand(Number size)
 {
 }
@@ -160,6 +192,8 @@ void Grid::shrink(Number size)
 
 const string Grid::represent()
 {
+
+
     stringstream ss;
     //Made neighbors for every cell
     for (int i = 0; i < grid->size(); i++)
@@ -171,7 +205,22 @@ const string Grid::represent()
         }
         ss << grid->at(i).back()->representation();
     }
+    ss << "\n";
     return ss.str();
+}
+
+void Grid::setDelay(std::shared_ptr<Number> delay)
+{
+    int newTime = 0;
+    try {
+        newTime = any_cast<int>(delay->getValue());
+    }
+    catch (...) 
+    {
+        CW_CORE_WARN("Invalid Delay Type. Expected an Integer. Delay not set");
+        return;
+    }
+    delayTime = newTime;
 }
 
 const shared_ptr<vector<vector<shared_ptr<Cell>>>> Grid::getGrid() const

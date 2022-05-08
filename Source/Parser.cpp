@@ -99,8 +99,8 @@ std::shared_ptr<Node> Parser::atom()
 			return while_expr();
 		else if (currentToken->svalue == "Cell")
 			return cell_expr();
-		else if (currentToken->svalue == "Grid")
-			return grid_expr();
+		else if (currentToken->svalue == "Grid" || currentToken->svalue == "Run" || currentToken->svalue == "Delay")
+			return func_expr();
 		else if (currentToken->svalue == "MakeAlive")
 			return makeAlive_expr();
 		else
@@ -314,24 +314,22 @@ std::shared_ptr<Node> Parser::cell_expr()
 	return std::make_shared<CellNode>(tok, boolAlive);
 }
 
-// KEYWORD:Grid LEFT PAR expr COMMA? expr? RIGHT PAR
-std::shared_ptr<Node> Parser::grid_expr()
+// KEYWORD ident? LEFT PAR expr COMMA? expr?... RIGHT PAR
+std::shared_ptr<Node> Parser::func_expr()
 {
 	Token& tok = *currentToken;
 
-	if (currentToken->svalue != "Grid")
-	{
-		return throwError("Expected Grid keyword");
-	}
+	string varType = currentToken->svalue;
 
 	advance();
 
-	if (currentToken->getType() != tokenTypes::T_IDENTIFIER)
+	string varname = "";
+	if (currentToken->getType() == tokenTypes::T_IDENTIFIER)
 	{
-		return throwError("Expected Variable Name");
+		varname = currentToken->svalue;
+		advance();
 	}
-	string varname = currentToken->svalue;
-	advance();
+
 
 	if (currentToken->getType() != tokenTypes::T_LEFTPAR)
 	{
@@ -340,23 +338,24 @@ std::shared_ptr<Node> Parser::grid_expr()
 
 	advance();
 
-	std::shared_ptr<Node> width = expr();
-	std::shared_ptr<Node> height = nullptr;
+	std::shared_ptr<vector<shared_ptr<Node>>> arguments = std::make_shared<vector<shared_ptr<Node>>>();
+
+	arguments->push_back(expr());
 
 	if (currentToken->getType() == tokenTypes::T_RIGHTPAR)
 	{
 		advance();
-		return std::make_shared<GridNode>(tok, width, height, varname);
+		return std::make_shared<FuncNode>(tok, arguments, varname, varType);
 	}
 	else
 	{
-		
 
-		if (currentToken->getType() == tokenTypes::T_COMMA)
+
+		while(currentToken->getType() == tokenTypes::T_COMMA)
 		{
 			advance();
 
-			height = expr();
+			arguments->push_back(expr());
 
 		}
 
@@ -369,7 +368,7 @@ std::shared_ptr<Node> Parser::grid_expr()
 
 	advance();
 
-	return std::make_shared<GridNode>(tok, width, height, varname);
+	return std::make_shared<FuncNode>(tok, arguments, varname, varType);
 }
 
 // KEYWORD:MakeAlive LEFT PAR list_expr RIGHT PAR
@@ -403,7 +402,7 @@ std::shared_ptr<Node> Parser::makeAlive_expr()
 	{
 		return throwError("Expected a ,");
 	}
-	
+
 	advance();
 
 	std::shared_ptr<Node> table = list_expr();
@@ -418,6 +417,9 @@ std::shared_ptr<Node> Parser::makeAlive_expr()
 
 	return std::make_shared<MakeAlive>(tok, gridName, table);
 }
+
+
+
 
 
 

@@ -16,7 +16,7 @@ const enum nodeTypes
 	NT_WhileNode,
 	NT_ListNode,
 	NT_CellNode,
-	NT_GridNode,
+	NT_FuncNode,
 	NT_AliveNode,
 	NT_EmptyNode
 };
@@ -154,15 +154,15 @@ public:
 	std::shared_ptr<Node> isAlive;
 };
 
-class GridNode : public Node
+class FuncNode : public Node
 {
 public:
-	GridNode(Token& tok, std::shared_ptr<Node> width, std::shared_ptr<Node> height, string gridname);
+	FuncNode(Token& tok, std::shared_ptr<vector<shared_ptr<Node>>> arguments, string varname, string varType);
 	string represent() override;
 
-	std::shared_ptr<Node> width; //width can also be only valid node
-	std::shared_ptr<Node> height;
-	string gridName;
+	std::shared_ptr<vector<shared_ptr<Node>>> arguments; //Must have at least one
+	string varName;
+	string varType;
 };
 
 class MakeAlive : public Node
