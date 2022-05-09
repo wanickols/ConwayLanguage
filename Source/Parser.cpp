@@ -50,7 +50,7 @@ std::shared_ptr<Node> Parser::atom()
 		advance();
 		return node;
 	}
-	else if (type == tokenTypes::T_IDENTIFIER) 
+	else if (type == tokenTypes::T_IDENTIFIER)
 	{
 		string varname = currentToken->svalue;
 		std::shared_ptr<Node> node = std::make_shared<VarAccessNode>(*currentToken);
@@ -91,17 +91,18 @@ std::shared_ptr<Node> Parser::atom()
 	//IF/For/While/Cell/Grid/MakeAlive 
 	else if (type == T_KEYWORD)
 	{
-		if (currentToken->svalue == "IF")
+		string& keywordName =currentToken->svalue;
+		if (keywordName == "IF")
 			return if_expr();
-		else if (currentToken->svalue == "FOR")
+		else if (keywordName == "FOR")
 			return for_expr();
-		else if (currentToken->svalue == "WHILE")
+		else if (keywordName == "WHILE")
 			return while_expr();
-		else if (currentToken->svalue == "Cell")
+		else if (keywordName == "Cell")
 			return cell_expr();
-		else if (currentToken->svalue == "Grid" || currentToken->svalue == "Run" || currentToken->svalue == "Delay")
+		else if (keywordName == "Grid" || keywordName == "Run" || keywordName == "Delay" || keywordName == "Clear")
 			return func_expr();
-		else if (currentToken->svalue == "MakeAlive")
+		else if (keywordName == "MakeAlive")
 			return makeAlive_expr();
 		else
 			return throwError("Expected IF, FOR, WHILE");
@@ -340,8 +341,17 @@ std::shared_ptr<Node> Parser::func_expr()
 
 	std::shared_ptr<vector<shared_ptr<Node>>> arguments = std::make_shared<vector<shared_ptr<Node>>>();
 
+	//No Paremeters
+	if (currentToken->getType() == tokenTypes::T_RIGHTPAR)
+	{
+		advance();
+		return std::make_shared<FuncNode>(tok, arguments, varname, varType);
+	}
+
 	arguments->push_back(expr());
 
+
+	//After One Paramter
 	if (currentToken->getType() == tokenTypes::T_RIGHTPAR)
 	{
 		advance();
@@ -350,7 +360,7 @@ std::shared_ptr<Node> Parser::func_expr()
 	else
 	{
 
-
+		//Endless Parameters
 		while(currentToken->getType() == tokenTypes::T_COMMA)
 		{
 			advance();
@@ -361,6 +371,7 @@ std::shared_ptr<Node> Parser::func_expr()
 
 	}
 
+	//Closing Par
 	if (currentToken->getType() != tokenTypes::T_RIGHTPAR)
 	{
 		return throwError("Expected a )");
@@ -368,6 +379,7 @@ std::shared_ptr<Node> Parser::func_expr()
 
 	advance();
 
+	//Node
 	return std::make_shared<FuncNode>(tok, arguments, varname, varType);
 }
 

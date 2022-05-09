@@ -197,13 +197,12 @@ Number Interpreter::visit(UnaryOpNode& unOpNode)
 	if (type == tokenTypes::T_MINUS)
 	{
 		int thisVal = 0;
-		try {
-			thisVal = any_cast<int>(other.getValue());
-		}catch(...) 
+
+		if (!other.getInt(thisVal))
 		{
 			return throwError("No - Operator exist for Type given");
-	
 		}
+
 		other.setValue(thisVal * -1);
 	}
 	else if (type == tokenTypes::T_NOT) 
@@ -305,28 +304,31 @@ Number Interpreter::visit(VarAssignNode& assignNode)
 {
 	Number result(0, assignNode.getLinePosition(), context);
 	Number adder = visit(assignNode.valueNode);
-	std::shared_ptr<Grid> val = nullptr;
 	
-	//Grid
-	try {
-		val = any_cast<std::shared_ptr<Grid>>(adder.getValue());
-	}catch(...)
+	std::shared_ptr<Grid> val;
+	
+	if(!adder.getGrid(val))
 	{
+
+		
 		//int
 		int val1 = 0;
-		try {
-			val1 = any_cast<int>(adder.getValue());
-		}
 
-		//None
-		catch (...)
-		{
+		if (!adder.getInt(val1)) {
 			return throwError("Invalid Type for Adder");
 		}
+	
+	
+		if (assignNode.varType != "Exist")
+			context->symbolTable->set(assignNode.varName, val1, assignNode.varType);
+		else
+		{
+			context->symbolTable->set(assignNode.varName, val1);
+		}
+		result.setValue(val1);
+		return result;
 	}
 
-	
-	
 
 	if(assignNode.varType != "Exist")
 		context->symbolTable->set(assignNode.varName, val, assignNode.varType);
@@ -382,29 +384,21 @@ Number Interpreter::visit(ForNode& forNode)
 	if (forNode.stepNode != nullptr) 
 	{
 		stepValue = visit(forNode.stepNode);
-		try {
-			step = any_cast<int>(stepValue.getValue());
-		}catch (...)
-		{
+
+		if(!stepValue.getInt(step))
 			return throwError("Invalid Type for FOR loop Step");
-		}
 	}
 
 	int i = 0;
 	
-	try {
-		i = any_cast<int>(startValue.getValue());
-	}
-	catch(...){
+	if(!startValue.getInt(i))
 		return throwError("Invalid Type for FOR loop incrementer");
-	}
+
+
+
 	int end = 0;
-	try {
-		end = any_cast<int>(endValue.getValue());
-	}catch(...)
-	{
+	if (!endValue.getInt(end))
 		return throwError("Invalid Type for FOR loop target");
-	} 
 
 	if (step > 0) 
 	{
@@ -459,13 +453,10 @@ Number Interpreter::visit(CellNode& cellNode)
 	Number isAlive = visit(cellNode.isAlive);
 
 	int alive = 0;
-	try {
-		alive = any_cast<int>(isAlive.getValue());
-	}
-	catch (...) 
-	{
+
+
+	if (!isAlive.getInt(alive))
 		throwError("Invalid Cell Initialization Type. Expected an Int");
-	}
 
 	Cell cell(alive);
 	
@@ -487,8 +478,7 @@ Number Interpreter::visit(FuncNode& funcNode)
 		try 
 		{
 			height = std::make_shared<Number>(visit(funcNode.arguments->at(1)));
-		}
-		catch (...){}
+		}catch (...){}
 
 		//Make grid
 		std::shared_ptr<Grid> grid = std::make_shared<Grid>(width, height);
@@ -562,6 +552,11 @@ Number Interpreter::visit(FuncNode& funcNode)
 
 		//No return needed
 	}
+	else if(funcNode.varType == "Clear")
+	{
+		//Clears Screen
+		system("cls");
+	}
 
 	//No Func Found
 	return Number();
@@ -614,14 +609,11 @@ Number Interpreter::visit(MakeAlive& makeAliveNode)
 	
 	Number n = visit(makeAliveNode.aliveTable);
 
-	List* l;
-	try {
-		l = new List(any_cast<List>(n.getValue()));
-	}
-	catch (...) 
-	{
+	std::shared_ptr<List> l;
+
+	if (!n.getList(l))
 		return throwError("Exepected a List");
-	}
+
 
 	shared_ptr<vector<List>> lists = std::make_shared<vector<List>>();
 	

@@ -41,8 +41,8 @@ int main() {
 
 	//Prompt
 	std::cout << "Hello and welcome to conway programming! Please enter in your code below \n";
-	std::cout << "Press ESC then Enter to leave \n";
-
+	std::cout << "Type ?? on a new line to leave \n";
+	
 	//Running
 	run();
 	 

@@ -432,6 +432,39 @@ bool Number::notted()
 	return 0;
 }
 
+bool Number::getInt(int& valueHolder)
+{
+	try { 
+		valueHolder = any_cast<int>(value);
+		return true;
+	}
+	catch (...) {
+		return false;
+	}
+}
+
+bool Number::getList(std::shared_ptr<List>& listHolder)
+{
+	try {
+		listHolder = std::make_shared<List>(any_cast<List>(value));
+		return true;
+	}
+	catch (...) {
+		return false;
+	}
+}
+
+bool Number::getGrid(std::shared_ptr<Grid>& gridHolder)
+{
+	try {
+		gridHolder = any_cast<std::shared_ptr<Grid>>(value);
+		return true;
+	}
+	catch (...) {
+		return false;
+	}
+}
+
 const std::any Number::getValue() const
 {
 	return value;

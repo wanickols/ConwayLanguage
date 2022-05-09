@@ -2,6 +2,8 @@
 
 class LinePosition;
 class Context;
+class Grid;
+class List;
 
 class Number
 {
@@ -22,6 +24,11 @@ public:
 	bool getComparison_GTE(Number other);
 	bool getComparison_KEYWORD(Number other, string keyword);
 	bool notted();
+
+	//Casting Functions
+	bool getInt(int& valueHolder);
+	bool getList(std::shared_ptr<List>& valueHolder);
+	bool getGrid(std::shared_ptr<Grid>& gridHolder);
 
 	//Accessors
 	const std::any getValue() const;

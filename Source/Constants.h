@@ -74,6 +74,7 @@ static const std::vector<string> keywordList
 	"MakeAlive",
 	"Run",
 	"Delay",
+	"Clear",
 	"IF",
 	"THEN",
 	"ELIF",

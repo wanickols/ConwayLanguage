@@ -83,23 +83,17 @@ Grid::Grid(std::shared_ptr<Number> N_width, std::shared_ptr<Number> N_height) : 
 
 void Grid::setWidthHeight(std::shared_ptr<Number> N_width, std::shared_ptr<Number> N_height)
 {
-    try
-    {
-        height = any_cast<int>(N_width->getValue());
-    }
-    catch (...)
+
+    if (!N_width->getInt(height))
     {
         CW_CORE_ERROR("Expected an INT for width");
     }
 
-    try
-    {
-        width = any_cast<int>(N_height->getValue());
-    }
-    catch (...)
+    if (!N_height->getInt(width))
     {
         CW_CORE_ERROR("Expected an INT for height");
     }
+
 }
 
 void Grid::makeAlive(std::shared_ptr<std::vector<List>> listTable)
@@ -151,20 +145,19 @@ void Grid::calculateAlive()
 void Grid::play(std::shared_ptr<Number> time)
 {
     float count = 1;
-    try
+    int counter = 0;
+    if (time->getInt(counter))
     {
-        count = (float)any_cast<int>(time->getValue());
+        count = (float)counter;
     }
-    catch (...)
+    else 
     {
         CW_CORE_ERROR("Invalid Value for Time. Expected an integer.");
         return;
     }
 
     count *= (1000.f/delayTime); //Convert Seconds based on delayTime in milliseconds increments
-    
   
-
     //Runs game for set count
     for (int i = 0; i < count; i++)
     {
@@ -182,10 +175,35 @@ void Grid::play(std::shared_ptr<Number> time)
 
 void Grid::expand(Number size)
 {
+    int expansion = 0;
+    if (size.getInt(expansion)) 
+    {
+        width += expansion;
+        height += expansion;
+        grid->clear();
+        InitCells();
+    }
+    else 
+    {
+        CW_CORE_ERROR("Invalid Value Expanding Grid. Expected an integer.");
+    }
+
 }
 
 void Grid::shrink(Number size)
 {
+    int shrink = 0;
+    if (size.getInt(shrink))
+    {
+        width -= shrink;
+        height -= shrink;
+        grid->clear();
+        InitCells();
+    }
+    else
+    {
+        CW_CORE_ERROR("Invalid Value Shrinking Grid. Expected an integer.");
+    }
 }
 
 
@@ -212,14 +230,13 @@ const string Grid::represent()
 void Grid::setDelay(std::shared_ptr<Number> delay)
 {
     int newTime = 0;
-    try {
-        newTime = any_cast<int>(delay->getValue());
-    }
-    catch (...) 
-    {
+    
+    //Cast
+    if(!delay->getInt(newTime)){
         CW_CORE_WARN("Invalid Delay Type. Expected an Integer. Delay not set");
         return;
     }
+
     delayTime = newTime;
 }
 
