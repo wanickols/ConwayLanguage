@@ -33,7 +33,12 @@ void SymbolTable::set(string name, std::any value, string type)
 
 	auto it = symbolsDictionary->find(name);
 	if (it != symbolsDictionary->end()) {
-		std::shared_ptr<std::pair<string, std::any>> symbol = std::make_shared<std::pair<string, std::any>>(it->second->first, value);
+		if(it->second->first != type)
+		{
+			CW_CORE_WARN("Warning! Overiding variable type of variable: {}", name);
+		}
+
+		std::shared_ptr<std::pair<string, std::any>> symbol = std::make_shared<std::pair<string, std::any>>(type, value);
 		it->second = symbol;
 	
 	}

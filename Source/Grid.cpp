@@ -18,7 +18,7 @@ void Grid::InitCells()
     {
         for (int j = 0; j < height; j++)
         {
-            grid->at(i).emplace_back(std::make_shared<Cell>(false));
+            grid->at(i).emplace_back(std::make_shared<Cell>(false, dead, alive));
         }
     }
 }
@@ -59,7 +59,7 @@ void Grid::calculateNeighbors()
 }
 
 
-Grid::Grid(std::shared_ptr<Number> N_width, std::shared_ptr<Number> N_height) : delayTime(400)
+Grid::Grid(std::shared_ptr<Number> N_width, std::shared_ptr<Number> N_height) : delayTime(400), dead("X"), alive("O")
 {
     //Set width and height
     if (!N_height)
@@ -238,6 +238,21 @@ void Grid::setDelay(std::shared_ptr<Number> delay)
     }
 
     delayTime = newTime;
+}
+
+void Grid::changeRepresentation(std::shared_ptr<Number> dead, std::shared_ptr<Number> alive)
+{
+    if (!dead->getString(this->dead)) 
+    {
+        CW_CORE_WARN("Invalid Death Representation. Expected a Char. Representation not set");
+        return;
+    }
+
+    if (!alive->getString(this->alive))
+    {
+        CW_CORE_WARN("Invalid Alive Representation. Expected a Char. Representation not set");
+        return;
+    }
 }
 
 const shared_ptr<vector<vector<shared_ptr<Cell>>>> Grid::getGrid() const

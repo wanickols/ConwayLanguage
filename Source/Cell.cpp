@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Cell.h"
 
-Cell::Cell(bool alive) : currAlive(alive), nextAlive(alive)
+Cell::Cell(bool isAlive, string& dead, string& alive) : currAlive(isAlive), nextAlive(isAlive), dead(dead), alive(alive)
 {
 	neighbors.reserve(8); //We have 8 neighbors
 }
@@ -83,16 +83,22 @@ const bool Cell::getAlive() const
 	return currAlive;
 }
 
+void Cell::changeRepresentation(string& dead, string& alive)
+{
+	this->dead = dead;
+	this->alive = alive;
+}
 
-const char Cell::representation()
+
+const string& Cell::representation()
 {
 	currAlive = nextAlive;
 	if (currAlive)
 	{
-		return 'O';
+		return alive;
 	}
 	else {
-		return 'X';
+		return dead;
 	}
 }
 

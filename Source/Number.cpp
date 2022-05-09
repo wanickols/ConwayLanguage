@@ -24,7 +24,7 @@ std::any Number::added_to(Number other)
 	try {
 		thisVal = any_cast<int>(value);
 
-		
+
 		try {
 			othVal = any_cast<int>(other.value);
 		}
@@ -37,26 +37,21 @@ std::any Number::added_to(Number other)
 		return thisVal + othVal;
 
 	}
-	catch (...){}
-
-	//List
-	List* thisList;
-	try
-	{
-		thisList = new List(any_cast<List>(value));
-		return thisList->added_to(other);
-	}
 	catch (...) {}
 
+	//List
+	std::shared_ptr<List> thisList;
+	if (getList(thisList))
+	{
+		return thisList->added_to(other);
+	}
 	//Grid
 	std::shared_ptr<Grid> grid;
-	try
+	if(getGrid(grid))
 	{
-		grid = any_cast<std::shared_ptr<Grid>>(value);
 		grid->expand(other);
 		return grid;
 	}
-	catch (...) {}
 
 	//Error
 	CW_CORE_ERROR("A + Operator Does Not exist for this type");
@@ -84,28 +79,22 @@ std::any Number::subbed_by(Number other)
 	}
 	catch (...){}
 
+
 	//List
-	List* thisList;
-	try
+	std::shared_ptr<List> thisList;
+	if (getList(thisList))
 	{
-		thisList = new List(any_cast<List>(value));
-
 		thisList->remove(std::make_shared<Number>(other));
-
-		return *thisList;
-
+		return thisList;
 	}
-	catch (...) {}
-
 	//Grid
 	std::shared_ptr<Grid> grid;
-	try
+	if (getGrid(grid))
 	{
-		grid = any_cast<std::shared_ptr<Grid>>(value);
 		grid->shrink(other);
 		return grid;
 	}
-	catch (...) {}
+
 
 	//Error
 	CW_CORE_ERROR("A - Operator Does Not exist for this type");
@@ -132,16 +121,13 @@ std::any  Number::multed_by(Number other)
 	}
 	catch (...) {}
 
-	//List
-	List* thisList;
-	try
-	{
-		thisList = new List(any_cast<List>(value));
 
+
+	//List
+	std::shared_ptr<List> thisList;
+	if (getList(thisList))
+	{
 		return thisList->concatenated(other);
-	}
-	catch (...) {
-		
 	}
 
 	//Grid multiply size
@@ -207,14 +193,19 @@ std::any Number::dived_by(Number other)
 	}
 	catch (...) {}
 	
-	List* thisList;
-	try
+	//List
+	std::shared_ptr<List> thisList;
+	if (getList(thisList))
 	{
-		thisList = new List(any_cast<List>(value));
-
 		return thisList->retrieve(std::make_shared<Number>(other));
 	}
-	catch (...) {}
+	//Grid
+	std::shared_ptr<Grid> grid;
+	if (getGrid(grid))
+	{
+		grid->shrink(other);
+		return grid;
+	}
 
 	CW_CORE_ERROR("A / Operator Does Not exist for this type");
 	return -1;
@@ -443,10 +434,21 @@ bool Number::getInt(int& valueHolder)
 	}
 }
 
+bool Number::getString(string& valueHolder)
+{
+	try {
+		valueHolder = any_cast<string>(value);
+		return true;
+	}
+	catch (...) {
+		return false;
+	}
+}
+
 bool Number::getList(std::shared_ptr<List>& listHolder)
 {
 	try {
-		listHolder = std::make_shared<List>(any_cast<List>(value));
+		listHolder = any_cast<std::shared_ptr<List>>(value);
 		return true;
 	}
 	catch (...) {
@@ -491,14 +493,19 @@ const string Number::represent()
 	//Integer
 	int thisVal = 0;
 	
-	try {
-		thisVal = any_cast<int>(value);
-
+	if(getInt(thisVal))
+	{
 		stringstream ss;
 		ss << thisVal;
 		return ss.str();
 	}
-	catch (...) {}
+
+	//Chars/Strings
+	string stringVal;
+	if(getString(stringVal))
+	{
+		return stringVal;
+	}
 
 	Cell* cell;
 	try
@@ -512,9 +519,10 @@ const string Number::represent()
 	}
 	catch (...) {}
 
+
 	//Grid
 	std::shared_ptr<Grid> grid;
-	try
+	if(getGrid(grid))
 	{
 		grid = any_cast<std::shared_ptr<Grid>>(value);
 
@@ -522,18 +530,11 @@ const string Number::represent()
 		ss << grid->represent();
 		return ss.str();
 	}
-	catch (...) {}
-
-	//MakeAlive?
-
 	//List
-	List* thisList;
+	std::shared_ptr<List> thisList;
 
-	try
+	if(getList(thisList))
 	{
-
-		thisList = new List(any_cast<List>(value));
-
 		stringstream ss;
 
 		ss << '[';
@@ -542,10 +543,8 @@ const string Number::represent()
 		}
 		ss << thisList->getValues()->back().represent() << ']';
 
-		delete thisList;
 		return ss.str();
 	}
-	catch (...) { }
 
 
 	//No Valid Type Found

@@ -26,6 +26,7 @@ private:
 
 	//Visit Functions
 	Number visit(NumberNode& numberNode);
+	Number visit(StringNode& numberNode);
 	Number visit(UnaryOpNode& binOpNode);
 	Number visit(BinOpNode& binOpNode);
 	Number visit(VarAccessNode& binOpNode);
@@ -34,7 +35,6 @@ private:
 	Number visit(IfNode& ifNode);
 	Number visit(ForNode& ForNode);
 	Number visit(WhileNode& WhileNode);
-	Number visit(CellNode& CellNode);
 	Number visit(FuncNode& FuncNode);
 	std::shared_ptr<Grid> findGrid(FuncNode& FuncNode);
 	Number visit(MakeAlive& MakeAliveNode);

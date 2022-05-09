@@ -43,7 +43,7 @@ void Lexer::make_tokens()
 		{
 			tokens.push_back(make_number());
 		}
-		//Numbers
+		//Letters
 		else if (LETTERS.find(currentChar) != string::npos)
 		{
 			tokens.push_back(makeIdentifier());
@@ -64,6 +64,9 @@ void Lexer::make_tokens()
 				break;
 			case '/':
 				tokens.push_back(Token(tokenTypes::T_DIVIDE, NULL, pos));
+				break;
+			case '\'':
+				tokens.push_back(Token(tokenTypes::T_QUOTE, NULL, pos));
 				break;
 			case '(':
 				tokens.push_back(Token(tokenTypes::T_LEFTPAR, NULL, pos));

@@ -13,6 +13,7 @@ static const enum tokenTypes
 	T_RIGHTBRAK,
 	T_COMMA,
 	T_INT,
+	T_QUOTE,
 	T_FLOAT,
 	T_POW,
 	T_EQ,
@@ -41,6 +42,7 @@ static const char* typesString[]
 	"RIGHTBRAK", //]
 	"COMMA", //,
 	"INT", // Any Number e.g. 5
+	"QUOTE", //'
 	"FLOAT", // Any decimal number e.g 5.2
 	"TOPOWEROF", // ^
 	"EQUALS", // =

@@ -1,8 +1,9 @@
 #include "pch.h"
 #include "Node.h"
 
-
+//==========================
 //=======Base Node==========
+//==========================
 Node::Node(Token& tok, nodeTypes type) : tok(tok), type(type)
 {
 
@@ -29,8 +30,9 @@ const std::shared_ptr<LinePosition> Node::getLinePosition() const
 	return tok.getPosStart();
 }
 
-
-//=======Number Node==========
+//==========================
+//=======Number Node========
+//==========================
 NumberNode::NumberNode(Token& tok) : Node(tok, NT_NumberNode)
 {
 }
@@ -40,8 +42,21 @@ string NumberNode::represent()
 	return tok.Representation();
 }
 
+//==========================
+//========Char Node=========
+//==========================
+StringNode::StringNode(Token& tok) : Node(tok, NT_StringNode)
+{
+}
 
-//=======BinOp Node==========
+string StringNode::represent()
+{
+	return "STRING ";
+}
+
+//==========================
+//=======BinOp Node=========
+//==========================
 BinOpNode::BinOpNode(std::shared_ptr<Node> left_node, Token& op_tok, std::shared_ptr<Node> right_node) : Node(op_tok, NT_BinOpNode), leftNode(left_node), rightNode(right_node)
 {
 }
@@ -53,6 +68,9 @@ string BinOpNode::represent()
 	return ss.str();
 }
 
+//==========================
+//======UnaryOp Node========
+//==========================
 UnaryOpNode::UnaryOpNode(Token& op_tok, std::shared_ptr<Node> other_node) : Node(op_tok, NT_UnaryOpNode), otherNode(other_node)
 {
 }
@@ -64,6 +82,9 @@ string UnaryOpNode::represent()
 	return ss.str();
 }
 
+//==========================
+//=======Var Assign=========
+//==========================
 VarAssignNode::VarAssignNode(Token& op_tok, string var_name, std::shared_ptr<Node> other_node, string var_type) : Node(op_tok, NT_VarAssignNode), varName(var_name), valueNode(other_node), varType(var_type)
 {
 }
@@ -76,6 +97,10 @@ string VarAssignNode::represent()
 	return ss.str();
 }
 
+
+//==========================
+//=======Var Access=========
+//==========================
 VarAccessNode::VarAccessNode(Token& op_tok) : Node(op_tok, NT_VarAccessNode)
 {
 }
@@ -87,6 +112,9 @@ string VarAccessNode::represent()
 	return ss.str();
 }
 
+//==========================
+//=========If Node==========
+//==========================
 IfNode::IfNode(Token& op_tok, std::shared_ptr<vector<Case>> cases, std::shared_ptr<Node> else_node) : Node(op_tok, NT_IfNode), cases(cases), elseNode(else_node)
 {
 
@@ -99,6 +127,9 @@ string IfNode::represent()
 	return ss.str();
 }
 
+//==========================
+//========For Node==========
+//==========================
 ForNode::ForNode(Token& tok, string var_name, string var_type, std::shared_ptr<Node> start_node, std::shared_ptr<Node> end_node, std::shared_ptr<Node> step_node, std::shared_ptr<Node> expression) : Node(tok, NT_ForNode), startNode(start_node), endNode(end_node), stepNode(step_node), expression(expression), varName(var_name), varType(var_type)
 {
 }
@@ -111,6 +142,9 @@ string ForNode::represent()
 	return ss.str();
 }
 
+//==========================
+//=======While Node=========
+//==========================
 WhileNode::WhileNode(Token& op_tok, std::shared_ptr<Case> passed_case) : Node(op_tok, NT_WhileNode), case_(passed_case)
 {
 }
@@ -123,7 +157,10 @@ string WhileNode::represent()
 	return ss.str();
 }
 
-ListNode::ListNode(Token& tok, std::shared_ptr<std::vector<std::shared_ptr<Node>>> element_nodes) : Node(tok , NT_ListNode), elementNodes(element_nodes)
+//==========================
+//========List Node=========
+//==========================
+ListNode::ListNode(Token& tok, string varname, std::shared_ptr<std::vector<std::shared_ptr<Node>>> element_nodes) : Node(tok , NT_ListNode), elementNodes(element_nodes), varName(varname)
 {
 }
 
@@ -138,17 +175,9 @@ string ListNode::represent()
 	return ss.str();
 }
 
-CellNode::CellNode(Token& tok, std::shared_ptr<Node> isAliveBool) : Node(tok, NT_CellNode), isAlive(isAliveBool)
-{
-}
-
-string CellNode::represent()
-{
-	stringstream ss;
-	ss << tok.Representation() << '(' << isAlive->represent() << ')';
-	return ss.str();
-}
-
+//==========================
+//=====MakeAlive Node=======
+//==========================
 MakeAlive::MakeAlive(Token& tok, string gridname, std::shared_ptr<Node> aliveTable) : Node(tok, NT_AliveNode), aliveTable(aliveTable), gridName(gridname)
 {
 }
@@ -160,6 +189,9 @@ string MakeAlive::represent()
 	return ss.str();
 }
 
+//==========================
+//========Func Node=========
+//==========================
 FuncNode::FuncNode(Token& tok, std::shared_ptr<vector<shared_ptr<Node>>> arguments, string varname, string vartype) : Node(tok, NT_FuncNode), arguments(arguments), varName(varname), varType(vartype)
 {
 
@@ -170,9 +202,13 @@ string FuncNode::represent()
 	stringstream ss;
 	ss << tok.Representation();
 	ss << '(';
-	for (int i = 0; i < arguments->size() -1; i++)
-		ss << arguments->at(i)->represent() << ", ";
+	if (!arguments->empty()) {
+		for (int i = 0; i < arguments->size() - 1; i++)
+			ss << arguments->at(i)->represent() << ", ";
 
-	ss << arguments->back()->represent() << ')';
+		ss << arguments->back()->represent() << ')';
+	}
 	return ss.str();
 }
+
+

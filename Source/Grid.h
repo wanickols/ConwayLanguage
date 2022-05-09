@@ -27,6 +27,7 @@ public:
 	void setWidthHeight(std::shared_ptr<Number> width, std::shared_ptr<Number> height = nullptr);
 	const string represent();
 	void setDelay(std::shared_ptr<Number> delay);
+	void changeRepresentation(std::shared_ptr<Number> dead, std::shared_ptr<Number> alive);
 	const shared_ptr<vector<vector<shared_ptr<Cell>>>> getGrid() const;
 
 private:
@@ -35,6 +36,8 @@ private:
 	int width; 
 	int height;
 	int delayTime;
+	string dead;
+	string alive;
 	std::shared_ptr<vector<vector<bool>>> aliveTable;
 };
 

@@ -26,7 +26,7 @@ std::shared_ptr<Node> Parser::parse()
 {
 	advance();
 	std::shared_ptr<Node> nodeP = expr();
-	if (currentToken->getType() != tokenTypes::T_EOF) 
+	if (currentToken->getType() != T_EOF) 
 	{
 		string details = "Expected *, or +, or -, or /";
 		IllegalSyntaxError error(details, nodeP->getLinePosition());
@@ -45,18 +45,37 @@ std::shared_ptr<Node> Parser::atom()
 	const tokenTypes& type = currentToken->getType();
 
 	//Binary Op
-	if (type == tokenTypes::T_INT || type == tokenTypes::T_FLOAT) {
+	if (type == T_INT || type == T_FLOAT) {
 		std::shared_ptr<Node> node = std::make_shared<NumberNode>(*currentToken);
 		advance();
 		return node;
 	}
-	else if (type == tokenTypes::T_IDENTIFIER)
+	else if (type == T_QUOTE) {
+		advance();
+
+		if (currentToken->getType() != T_IDENTIFIER) 
+		{
+			return throwError("Expected A String");
+		}
+		
+		std::shared_ptr<StringNode> node = std::make_shared<StringNode>(*currentToken);
+		advance();
+
+		if (currentToken->getType() != T_QUOTE)
+		{
+			return throwError("Expected A Quote");
+		}
+		advance();
+
+		return node;
+	}
+	else if (type == T_IDENTIFIER)
 	{
 		string varname = currentToken->svalue;
 		std::shared_ptr<Node> node = std::make_shared<VarAccessNode>(*currentToken);
 		advance();
 
-		if (currentToken->getType() == tokenTypes::T_EQ)
+		if (currentToken->getType() == T_EQ)
 		{
 			advance();
 			string symbolName = "EXISTS";
@@ -98,9 +117,7 @@ std::shared_ptr<Node> Parser::atom()
 			return for_expr();
 		else if (keywordName == "WHILE")
 			return while_expr();
-		else if (keywordName == "Cell")
-			return cell_expr();
-		else if (keywordName == "Grid" || keywordName == "Run" || keywordName == "Delay" || keywordName == "Clear")
+		else if (keywordName == "Grid" || keywordName == "Run" || keywordName == "Delay" || keywordName == "Clear" || keywordName == "Cell")
 			return func_expr();
 		else if (keywordName == "MakeAlive")
 			return makeAlive_expr();
@@ -120,7 +137,7 @@ std::shared_ptr<Node> Parser::atom()
 std::shared_ptr<Node> Parser::power()
 {
 	std::shared_ptr<std::unordered_set<tokenTypes>> types = std::make_shared<std::unordered_set<tokenTypes>>();
-	types->insert( tokenTypes::T_POW );
+	types->insert( T_POW );
 	return  bin_op([this]() { return this->atom(); }, types, [this]() { return this->factor(); });
 }
 
@@ -132,7 +149,7 @@ std::shared_ptr<Node> Parser::factor()
 	const tokenTypes& type = currentToken->getType();
 	
 	//Unary Op
-	if (type == tokenTypes::T_PLUS || type == tokenTypes::T_MINUS)
+	if (type == T_PLUS || type == T_MINUS)
 	{
 		Token* t = currentToken;
 		advance();
@@ -154,7 +171,7 @@ std::shared_ptr<Node> Parser::factor()
 std::shared_ptr<Node> Parser::term()
 {
 	std::shared_ptr<std::unordered_set<tokenTypes>> types = std::make_shared<std::unordered_set<tokenTypes>>();
-	types->insert({ tokenTypes::T_MULTIPLY, tokenTypes::T_DIVIDE });
+	types->insert({ T_MULTIPLY, T_DIVIDE });
 	return bin_op([this]() { return this->factor(); }, types);
 }
 
@@ -162,7 +179,7 @@ std::shared_ptr<Node> Parser::term()
 std::shared_ptr<Node> Parser::arith_expr()
 {
 	std::shared_ptr<std::unordered_set<tokenTypes>> types = std::make_shared<std::unordered_set<tokenTypes>>();
-	types->insert({ tokenTypes::T_PLUS, tokenTypes::T_MINUS });
+	types->insert({ T_PLUS, T_MINUS });
 	return bin_op([this]() { return this->term(); }, types);
 }
 
@@ -173,7 +190,7 @@ std::shared_ptr<Node> Parser::cmpr_expr()
 	tokenTypes type = currentToken->getType();
 
 	//Not handling
-	if (type == tokenTypes::T_KEYWORD)
+	if (type == T_KEYWORD)
 	{
 		string symbolName = currentToken->svalue;
 		if (symbolName == "NOT")
@@ -181,7 +198,7 @@ std::shared_ptr<Node> Parser::cmpr_expr()
 			return returnNotExpr();
 		}
 	}
-	else if (type == tokenTypes::T_NOT)
+	else if (type == T_NOT)
 	{
 		std::shared_ptr<Node> Cnode = cmpr_expr();
 		std::shared_ptr<UnaryOpNode> uNode = std::make_shared<UnaryOpNode>(*currentToken, Cnode);
@@ -190,7 +207,7 @@ std::shared_ptr<Node> Parser::cmpr_expr()
 
 	//arithmExpr
 	std::shared_ptr<std::unordered_set<tokenTypes>> types = std::make_shared<std::unordered_set<tokenTypes>>();
-	types->insert({ tokenTypes::T_EE, tokenTypes::T_LT, tokenTypes::T_GT, tokenTypes::T_LTE, tokenTypes::T_GTE });
+	types->insert({ T_EE, T_LT, T_GT, T_LTE, T_GTE });
 	return bin_op([this]() { return this->arith_expr(); }, types);
 }
 
@@ -207,7 +224,7 @@ std::shared_ptr<Node> Parser::returnNotExpr()
 std::shared_ptr<Node> Parser::expr()
 {
 	//Keyword assigning
-	if (currentToken->getType() == tokenTypes::T_KEYWORD)
+	if (currentToken->getType() == T_KEYWORD)
 	{
 		string symbolName = currentToken->svalue;
 		if (symbolName == "Int") {
@@ -252,16 +269,24 @@ std::shared_ptr<Node> Parser::list_expr()
 
 	advance();
 
-	if (currentToken->getType() == tokenTypes::T_RIGHTBRAK)
+	string varname = "";
+	if (currentToken->getType() == T_RIGHTBRAK)
 	{
 		advance();
-		return std::make_shared<ListNode>(*currentToken, elementNodes);
+
+		if (currentToken->getType() == T_IDENTIFIER)
+		{
+			varname = currentToken->svalue;
+			advance();
+		}
+
+		return std::make_shared<ListNode>(*currentToken, varname, elementNodes);
 	}
 	else
 	{
 		elementNodes->push_back(expr());
 
-		while (currentToken->getType() == tokenTypes::T_COMMA)
+		while (currentToken->getType() == T_COMMA)
 		{
 			advance();
 
@@ -274,46 +299,23 @@ std::shared_ptr<Node> Parser::list_expr()
 	}
 
 
-	if (currentToken->getType() != tokenTypes::T_RIGHTBRAK)
+	if (currentToken->getType() != T_RIGHTBRAK)
 	{
 		return throwError("Expected ] or '(', ',', '[', INT,FLOAT, KEYWORD, IDENTIFIER");
 	}
 
 	advance();
 
-	return std::make_shared<ListNode>(*currentToken, elementNodes);
+	
+	if (currentToken->getType() == T_IDENTIFIER)
+	{
+		varname = currentToken->svalue;
+		advance();
+	}
+
+	return std::make_shared<ListNode>(*currentToken, varname, elementNodes);
 }
 
-
-// KEYWORD:Cell LEFT PAR expr RIGHT PAR
-std::shared_ptr<Node> Parser::cell_expr()
-{
-	Token& tok = *currentToken;
-	if (currentToken->svalue != "Cell")
-	{
-		return throwError("Expected Cell keyword");
-	}
-
-	advance();
-
-	if (currentToken->getType() != tokenTypes::T_LEFTPAR)
-	{
-		return throwError("Expected a (");
-	}
-
-	advance();
-
-	std::shared_ptr<Node> boolAlive = expr();
-
-	if (currentToken->getType() != tokenTypes::T_RIGHTPAR)
-	{
-		return throwError("Expected a )");
-	}
-
-	advance();
-
-	return std::make_shared<CellNode>(tok, boolAlive);
-}
 
 // KEYWORD ident? LEFT PAR expr COMMA? expr?... RIGHT PAR
 std::shared_ptr<Node> Parser::func_expr()
@@ -325,14 +327,14 @@ std::shared_ptr<Node> Parser::func_expr()
 	advance();
 
 	string varname = "";
-	if (currentToken->getType() == tokenTypes::T_IDENTIFIER)
+	if (currentToken->getType() == T_IDENTIFIER)
 	{
 		varname = currentToken->svalue;
 		advance();
 	}
 
 
-	if (currentToken->getType() != tokenTypes::T_LEFTPAR)
+	if (currentToken->getType() != T_LEFTPAR)
 	{
 		return throwError("Expected a (");
 	}
@@ -342,7 +344,7 @@ std::shared_ptr<Node> Parser::func_expr()
 	std::shared_ptr<vector<shared_ptr<Node>>> arguments = std::make_shared<vector<shared_ptr<Node>>>();
 
 	//No Paremeters
-	if (currentToken->getType() == tokenTypes::T_RIGHTPAR)
+	if (currentToken->getType() == T_RIGHTPAR)
 	{
 		advance();
 		return std::make_shared<FuncNode>(tok, arguments, varname, varType);
@@ -352,7 +354,7 @@ std::shared_ptr<Node> Parser::func_expr()
 
 
 	//After One Paramter
-	if (currentToken->getType() == tokenTypes::T_RIGHTPAR)
+	if (currentToken->getType() == T_RIGHTPAR)
 	{
 		advance();
 		return std::make_shared<FuncNode>(tok, arguments, varname, varType);
@@ -361,7 +363,7 @@ std::shared_ptr<Node> Parser::func_expr()
 	{
 
 		//Endless Parameters
-		while(currentToken->getType() == tokenTypes::T_COMMA)
+		while(currentToken->getType() == T_COMMA)
 		{
 			advance();
 
@@ -372,7 +374,7 @@ std::shared_ptr<Node> Parser::func_expr()
 	}
 
 	//Closing Par
-	if (currentToken->getType() != tokenTypes::T_RIGHTPAR)
+	if (currentToken->getType() != T_RIGHTPAR)
 	{
 		return throwError("Expected a )");
 	}
@@ -395,14 +397,14 @@ std::shared_ptr<Node> Parser::makeAlive_expr()
 
 	advance();
 
-	if (currentToken->getType() != tokenTypes::T_LEFTPAR)
+	if (currentToken->getType() != T_LEFTPAR)
 	{
 		return throwError("Expected a (");
 	}
 
 	advance();
 
-	if (currentToken->getType() != tokenTypes::T_IDENTIFIER)
+	if (currentToken->getType() != T_IDENTIFIER)
 	{
 		return throwError("Expected Grid Name");
 	}
@@ -410,7 +412,7 @@ std::shared_ptr<Node> Parser::makeAlive_expr()
 	advance();
 
 
-	if (currentToken->getType() != tokenTypes::T_COMMA)
+	if (currentToken->getType() != T_COMMA)
 	{
 		return throwError("Expected a ,");
 	}
@@ -420,7 +422,7 @@ std::shared_ptr<Node> Parser::makeAlive_expr()
 	std::shared_ptr<Node> table = list_expr();
 
 
-	if (currentToken->getType() != tokenTypes::T_RIGHTPAR)
+	if (currentToken->getType() != T_RIGHTPAR)
 	{
 		return throwError("Expected a )");
 	}
@@ -507,7 +509,7 @@ std::shared_ptr<Node> Parser::for_expr()
 
 	advance();
 
-	if (currentToken->getType() != tokenTypes::T_IDENTIFIER)
+	if (currentToken->getType() != T_IDENTIFIER)
 	{
 		return throwError("Expected Identifier");
 	}
@@ -515,7 +517,7 @@ std::shared_ptr<Node> Parser::for_expr()
 	string varName = currentToken->svalue;
 	advance();
 
-	if (currentToken->getType() != tokenTypes::T_EQ)
+	if (currentToken->getType() != T_EQ)
 	{
 		return throwError("Expected Equals");
 	}
@@ -625,7 +627,7 @@ std::shared_ptr<Node> Parser::bin_op_key(std::function<std::shared_ptr<Node>()> 
 
 	std::shared_ptr<Node> left = func_a();
 
-	if (currentToken->getType() == tokenTypes::T_KEYWORD)
+	if (currentToken->getType() == T_KEYWORD)
 	{
 		string symbolName = currentToken->svalue;
 		while (ops->find(symbolName) != ops->end())

@@ -18,7 +18,7 @@ Number Interpreter::visit(std::shared_ptr<Node> node)
 {
 	switch (node->getNodeType())
 	{
-	case(nodeTypes::NT_NumberNode):
+	case(NT_NumberNode):
 		if (NumberNode* NNode = dynamic_cast<NumberNode*>(node.get()))
 		{
 			return visit(*NNode);
@@ -29,7 +29,19 @@ Number Interpreter::visit(std::shared_ptr<Node> node)
 		}
 
 		break;
-	case(nodeTypes::NT_BinOpNode):
+	case(NT_StringNode):
+		if (StringNode* sNode = dynamic_cast<StringNode*>(node.get()))
+		{
+			return visit(*sNode);
+		}
+		else
+		{
+			CW_CORE_ERROR("Number node type explcitly declared and wrong");
+			return no_visit_method(node);
+		}
+
+		break;
+	case(NT_BinOpNode):
 		if (BinOpNode* BNode = dynamic_cast<BinOpNode*>(node.get()))
 		{
 			return visit(*BNode);
@@ -40,7 +52,7 @@ Number Interpreter::visit(std::shared_ptr<Node> node)
 			return no_visit_method(node);
 		}
 		break;
-	case(nodeTypes::NT_UnaryOpNode):
+	case(NT_UnaryOpNode):
 		if (UnaryOpNode* UNode = dynamic_cast<UnaryOpNode*>(node.get()))
 		{
 			return visit(*UNode);
@@ -51,7 +63,7 @@ Number Interpreter::visit(std::shared_ptr<Node> node)
 			return no_visit_method(node);
 		}
 		break;
-	case(nodeTypes::NT_VarAccessNode):
+	case(NT_VarAccessNode):
 		if (VarAccessNode* VarAccessNd = dynamic_cast<VarAccessNode*>(node.get()))
 		{
 			return visit(*VarAccessNd);
@@ -62,7 +74,7 @@ Number Interpreter::visit(std::shared_ptr<Node> node)
 			return no_visit_method(node);
 		}
 		break;
-	case(nodeTypes::NT_VarAssignNode):
+	case(NT_VarAssignNode):
 		if (VarAssignNode* VarAssignNd = dynamic_cast<VarAssignNode*>(node.get()))
 		{
 			return visit(*VarAssignNd);
@@ -73,7 +85,7 @@ Number Interpreter::visit(std::shared_ptr<Node> node)
 			return no_visit_method(node);
 		}
 		break;
-	case(nodeTypes::NT_ListNode):
+	case(NT_ListNode):
 		if (ListNode* ifNd = dynamic_cast<ListNode*>(node.get()))
 		{
 			return visit(*ifNd);
@@ -84,7 +96,7 @@ Number Interpreter::visit(std::shared_ptr<Node> node)
 			return no_visit_method(node);
 		}
 		break;
-	case(nodeTypes::NT_IfNode):
+	case(NT_IfNode):
 			if (IfNode* ifNd = dynamic_cast<IfNode*>(node.get()))
 			{
 				return visit(*ifNd);
@@ -95,7 +107,7 @@ Number Interpreter::visit(std::shared_ptr<Node> node)
 				return no_visit_method(node);
 			}
 		break;
-	case(nodeTypes::NT_ForNode):
+	case(NT_ForNode):
 		if (ForNode* forNode = dynamic_cast<ForNode*>(node.get()))
 		{
 			return visit(*forNode);
@@ -106,7 +118,7 @@ Number Interpreter::visit(std::shared_ptr<Node> node)
 			return no_visit_method(node);
 		}
 		break;
-	case(nodeTypes::NT_WhileNode):
+	case(NT_WhileNode):
 		if (WhileNode* whileNode = dynamic_cast<WhileNode*>(node.get()))
 		{
 			return visit(*whileNode);
@@ -117,18 +129,7 @@ Number Interpreter::visit(std::shared_ptr<Node> node)
 			return no_visit_method(node);
 		}
 		break;
-	case(nodeTypes::NT_CellNode):
-		if (CellNode* cellNode = dynamic_cast<CellNode*>(node.get()))
-		{
-			return visit(*cellNode);
-		}
-		else
-		{
-			CW_CORE_ERROR("Cell node type explcitly declared and wrong");
-			return no_visit_method(node);
-		}
-		break;
-	case(nodeTypes::NT_FuncNode):
+	case(NT_FuncNode):
 		if (FuncNode* funcNode = dynamic_cast<FuncNode*>(node.get()))
 		{
 			return visit(*funcNode);
@@ -139,7 +140,7 @@ Number Interpreter::visit(std::shared_ptr<Node> node)
 			return no_visit_method(node);
 		}
 		break;
-	case(nodeTypes::NT_AliveNode):
+	case(NT_AliveNode):
 		if (MakeAlive* aliveNode = dynamic_cast<MakeAlive*>(node.get()))
 		{
 			return visit(*aliveNode);
@@ -150,7 +151,7 @@ Number Interpreter::visit(std::shared_ptr<Node> node)
 			return no_visit_method(node);
 		}
 		break;
-	case(nodeTypes::NT_EmptyNode):
+	case(NT_EmptyNode):
 	default:
 		return no_visit_method(node);
 		break;
@@ -178,14 +179,16 @@ Number Interpreter::visit(NumberNode& numberNode)
 	}
 	else {
 		int val = numberNode.getToken().value;
-		Number num(val, numberNode.getLinePosition(), context);
-
-
-		//CW_CORE_TRACE("found number node {}", val);
-		return num;
+		return Number(val, numberNode.getLinePosition(), context);
 
 	}
 
+}
+
+Number Interpreter::visit(StringNode& numberNode)
+{
+	string val = numberNode.getToken().svalue;
+	return Number(val, numberNode.getLinePosition(), context);
 }
 
 Number Interpreter::visit(UnaryOpNode& unOpNode)
@@ -287,6 +290,10 @@ Number Interpreter::visit(VarAccessNode& accessNode)
 	{
 		result.setValue(std::any_cast<std::shared_ptr<Grid>>(pair_val->second));
 	}
+	else if (type_name == "List")
+	{
+		result.setValue(std::any_cast<std::shared_ptr<List>>(pair_val->second));
+	}
 	else 
 	{
 		if (type_name == "null")
@@ -352,7 +359,14 @@ Number Interpreter::visit(ListNode& listNode)
 		nums->push_back(this->visit(listNode.elementNodes->at(i)));
 	}
 
-	List list(nums);
+
+
+	std::shared_ptr<List> list = std::make_shared<List>(nums);
+
+
+	//Set grid in context
+	if (listNode.varName != "")
+		context->symbolTable->set(listNode.varName, list, "List");
 	
 	return Number(list, listNode.getLinePosition(), context);
 }
@@ -448,29 +462,14 @@ Number Interpreter::visit(WhileNode& whileNode)
 	return Number();
 }
 
-Number Interpreter::visit(CellNode& cellNode)
-{
-	Number isAlive = visit(cellNode.isAlive);
-
-	int alive = 0;
-
-
-	if (!isAlive.getInt(alive))
-		throwError("Invalid Cell Initialization Type. Expected an Int");
-
-	Cell cell(alive);
-	
-	return Number(cell, cellNode.getLinePosition(), context);
-}
-
 Number Interpreter::visit(FuncNode& funcNode)
 {
 	if (funcNode.varType == "Grid") {
 		//Argument Size Check
 		if (funcNode.arguments->empty())
-			return throwError("Expected Arguments: " + funcNode.getLinePosition()->represent());
+			return throwError("Expected Arguments: (Integer, Integer?) " + funcNode.getLinePosition()->represent());
 		else if (funcNode.arguments->size() > 2)
-			CW_CORE_WARN("Grid Function only takes in twp parameters. Only the first two will be used.");
+			CW_CORE_WARN("Grid Function only takes in two parameters (Integer, Integer?). Only the first two will be used.");
 
 		//Parameters of grid
 		std::shared_ptr<Number> width = std::make_shared<Number>(visit(funcNode.arguments->at(0)));
@@ -493,7 +492,7 @@ Number Interpreter::visit(FuncNode& funcNode)
 	{
 		//Argument Size Check
 		if (funcNode.arguments->empty())
-			return throwError("Expected Arguments: " + funcNode.getLinePosition()->represent());
+			return throwError("Expected Arguments: (Grid, Integer)|" + funcNode.getLinePosition()->represent());
 		else if (funcNode.arguments->size() > 2)
 			CW_CORE_WARN("Run Function only takes in two parameters (Grid, Integer). Only the first will be used. ");
 
@@ -552,11 +551,44 @@ Number Interpreter::visit(FuncNode& funcNode)
 
 		//No return needed
 	}
+	else if (funcNode.varType == "Cell")
+	{
+		//Argument Size Check
+		if (funcNode.arguments->empty())
+			return throwError("Expected Arguments: (Grid, String, String) " + funcNode.getLinePosition()->represent());
+		else if (funcNode.arguments->size() > 3)
+			CW_CORE_WARN("Cell Function only takes in three parameters (Grid, String, String). Only the first three will be used.");
+
+		//Get Grid
+		std::shared_ptr<Grid> grid = findGrid(funcNode);
+
+		std::shared_ptr<Number> dead;
+		try {
+			dead = std::make_shared<Number>(visit(funcNode.arguments->at(1)));
+		}
+		catch (...)
+		{
+			return throwError("Expected an integer (In Milliseconds) for time of delay. ");
+		}
+
+		std::shared_ptr<Number> alive;
+		try {
+			alive = std::make_shared<Number>(visit(funcNode.arguments->at(2)));
+		}
+		catch (...)
+		{
+			return throwError("Expected an integer (In Milliseconds) for time of delay. ");
+		}
+
+		grid->changeRepresentation(dead, alive);
+
+	}
 	else if(funcNode.varType == "Clear")
 	{
 		//Clears Screen
 		system("cls");
 	}
+	
 
 	//No Func Found
 	return Number();

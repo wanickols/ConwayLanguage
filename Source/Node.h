@@ -7,6 +7,7 @@ class Case;
 const enum nodeTypes
 {
 	NT_NumberNode = 0,
+	NT_StringNode,
 	NT_BinOpNode,
 	NT_UnaryOpNode,
 	NT_VarAssignNode,
@@ -15,7 +16,6 @@ const enum nodeTypes
 	NT_ForNode,
 	NT_WhileNode,
 	NT_ListNode,
-	NT_CellNode,
 	NT_FuncNode,
 	NT_AliveNode,
 	NT_EmptyNode
@@ -51,15 +51,12 @@ public:
 	string represent() override;
 };
 
-//This is not a great plan but it is what I could get to work
-//This class is an emtpy node that is used to satisfy functions that must return a node,
-//but the if statement is more for error checking then anything else. 
-class EmptyNode : public Node
+class StringNode : public Node
 {
 public:
+	StringNode(Token& tok);
 
-	EmptyNode(Token& tok) : Node(tok, nodeTypes::NT_EmptyNode) {};
-	string represent() override { return ""; };
+	string represent() override;
 };
 
 class BinOpNode : public Node 
@@ -139,19 +136,11 @@ public:
 class ListNode : public Node
 {
 public:
-	ListNode(Token& op_tok, std::shared_ptr<std::vector<std::shared_ptr<Node>>> element_nodes);
+	ListNode(Token& op_tok, string varname, std::shared_ptr<std::vector<std::shared_ptr<Node>>> element_nodes);
 	string represent() override;
 
+	string varName;
 	std::shared_ptr<std::vector<std::shared_ptr<Node>>> elementNodes;
-};
-
-class CellNode : public Node
-{
-public:
-	CellNode(Token& op_tok, std::shared_ptr<Node> isAliveBool);
-	string represent() override;
-
-	std::shared_ptr<Node> isAlive;
 };
 
 class FuncNode : public Node
@@ -174,4 +163,13 @@ public:
 	std::shared_ptr<Node> aliveTable; //list of list of bools
 	string gridName;
 
+};
+
+
+class EmptyNode : public Node
+{
+public:
+
+	EmptyNode(Token& tok) : Node(tok, nodeTypes::NT_EmptyNode) {};
+	string represent() override { return ""; };
 };

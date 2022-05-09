@@ -37,8 +37,7 @@ private:
 	std::shared_ptr<Node> cmpr_expr(); //Comparisons of Arithmetic Expressions
 	std::shared_ptr<Node> expr(); //Logical Expression
 	std::shared_ptr<Node> list_expr(); //List Expression
-	std::shared_ptr<Node> cell_expr(); //Cell Expression
-	std::shared_ptr<Node> func_expr(); //Function Expression (built in)
+	std::shared_ptr<Node> func_expr(); //Function Expression (built in functions)
 	std::shared_ptr<Node> makeAlive_expr(); //List Expression
 	std::shared_ptr<Node> if_expr(); //If Expression
 	std::shared_ptr<Node> for_expr(); //For Expression
