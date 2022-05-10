@@ -40,7 +40,7 @@ int main() {
 	Init();
 
 	//Prompt
-	std::cout << "Hello and welcome to conway programming! Please enter in your code below \n";
+	std::cout << "Hello and welcome to Conway Language! Please enter in your code below \n";
 	std::cout << "Type ?? on a new line to leave \n";
 	
 	//Running
@@ -95,7 +95,10 @@ void run()
 			//Printing
 			Number interpetedNode = interper.visit(parsedNode);
 			if (interpetedNode.getIsReal()) {
-				cout << interpetedNode.represent() << " " << parsedNode->represent() << endl;
+				//Parser info with results
+				//cout << interpetedNode.represent() << " " << parsedNode->represent() << endl;
+				//Just Results
+				cout << interpetedNode.represent() << endl;
 			}
 		}
 		//PrintRun(tokens, parser);
@@ -117,9 +120,9 @@ std::shared_ptr<string> userInput()
 		*text += line + " ";
 	}
 
-	CW_CORE_WARN(*text);
+	//CW_CORE_WARN(*text);
 	//Working on it
-	std::cout << "Alrighty! just a moment... \n";
+	std::cout << "Alrighty! Just a moment... \n";
 
 	return text;
 }

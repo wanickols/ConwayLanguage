@@ -377,7 +377,9 @@ Number Interpreter::visit(IfNode& ifNode)
 	for (int i = 0; i < ifNode.cases->size(); i++) 
 	{
 		Number cond = visit(ifNode.cases->at(i).condition);
-		if (cond.getValue().has_value())
+		int condition = 0;
+		cond.getBool(condition);
+		if (condition)
 			return visit(ifNode.cases->at(i).expression);
 	}
 	if (ifNode.elseNode != nullptr)
@@ -445,18 +447,22 @@ Number Interpreter::visit(WhileNode& whileNode)
 {
 	int counter = 0;
 
-
-	while(true)
+	int check = 1;
+	while(check)
 	{
 		Number cond = visit(whileNode.case_->condition);
 		if (!cond.getValue().has_value())
-			break;
+			check = 0;
+		
+		//Casts
+		cond.getBool(check);
 		
 		visit(whileNode.case_->expression);
 
 		if (counter > maxWhileSize)
-			break;
+			check = 0;
 	
+		++counter;
 	}
 
 	return Number();
@@ -647,11 +653,11 @@ Number Interpreter::visit(MakeAlive& makeAliveNode)
 		return throwError("Exepected a List");
 
 
-	shared_ptr<vector<List>> lists = std::make_shared<vector<List>>();
+	shared_ptr<vector<std::shared_ptr<List>>> lists = std::make_shared<vector<shared_ptr<List>>>();
 	
 	try {
 		for (int i = 0; i < l->getValues()->size(); i++) {
-			lists->push_back(any_cast<List>(l->getValues()->at(i).getValue()));
+			lists->push_back(any_cast<std::shared_ptr<List>>(l->getValues()->at(i).getValue()));
 		}
 	}
 	catch (...) 

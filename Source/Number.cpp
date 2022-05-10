@@ -434,6 +434,17 @@ bool Number::getInt(int& valueHolder)
 	}
 }
 
+bool Number::getBool(int& valueHolder)
+{
+	try {
+		valueHolder = (int)any_cast<bool>(value);
+		return true;
+	}
+	catch (...) {
+		return false;
+	}
+}
+
 bool Number::getString(string& valueHolder)
 {
 	try {
@@ -538,12 +549,14 @@ const string Number::represent()
 		stringstream ss;
 
 		ss << '[';
-		for (int i = 0; i < thisList->getValues()->size() - 1; i++) { //List prints each value 
-			ss << thisList->getValues()->at(i).represent() << ", ";
-		}
-		ss << thisList->getValues()->back().represent() << ']';
+		if (!thisList->getValues()->empty()) {
+			for (int i = 0; i < thisList->getValues()->size() - 1; i++) { //List prints each value 
+				ss << thisList->getValues()->at(i).represent() << ", ";
+			}
+			ss << thisList->getValues()->back().represent() << ']';
 
-		return ss.str();
+			return ss.str();
+		}
 	}
 
 

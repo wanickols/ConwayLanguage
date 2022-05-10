@@ -189,6 +189,9 @@
     <ClInclude Include="Source\SymbolTable.h" />
     <ClInclude Include="Source\Token.h" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="Syntax.txt" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

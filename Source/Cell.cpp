@@ -49,7 +49,7 @@ void Cell::calculateNeighbors(shared_ptr<vector<vector<shared_ptr<Cell>>>> grid,
 		if (myWidth != 0) //if Not at leftMost
 			neighbors.emplace_back(grid->at(myHeight - 1).at(myWidth - 1)); // top left
 
-		else if (myWidth < grid->at(0).size() - 1) // if not at rightMost
+		if (myWidth < grid->at(0).size() - 1) // if not at rightMost
 			neighbors.emplace_back(grid->at(myHeight - 1).at(myWidth + 1)); // top right
 	}
 

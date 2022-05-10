@@ -211,6 +211,7 @@ std::shared_ptr<Node> Parser::cmpr_expr()
 	return bin_op([this]() { return this->arith_expr(); }, types);
 }
 
+//Not
 std::shared_ptr<Node> Parser::returnNotExpr()
 {
 	std::shared_ptr<Node> Cnode = cmpr_expr();
@@ -261,7 +262,7 @@ std::shared_ptr<Node> Parser::expr()
 	return bin_op_key([this]() { return this->cmpr_expr(); }, BinKeywords);
 
 }
-//LEFTBRAK (expr COMMA expr RIGHTBRAK
+//LEFTBRAK : expr COMMA expr RIGHTBRAK
 std::shared_ptr<Node> Parser::list_expr()
 {
 	std::shared_ptr<vector<std::shared_ptr<Node>>> elementNodes = std::make_shared<vector<std::shared_ptr<Node>>>();
@@ -327,6 +328,7 @@ std::shared_ptr<Node> Parser::func_expr()
 	advance();
 
 	string varname = "";
+
 	if (currentToken->getType() == T_IDENTIFIER)
 	{
 		varname = currentToken->svalue;
@@ -419,7 +421,7 @@ std::shared_ptr<Node> Parser::makeAlive_expr()
 
 	advance();
 
-	std::shared_ptr<Node> table = list_expr();
+	std::shared_ptr<Node> table = expr();
 
 
 	if (currentToken->getType() != T_RIGHTPAR)
@@ -498,6 +500,7 @@ std::shared_ptr<Node> Parser::if_expr()
 	return std::make_shared<IfNode>(tok, cases, node);
 }
 
+//FOR IDENTIFIER = epxr TO expr STEP? expr THEN expr
 std::shared_ptr<Node> Parser::for_expr()
 {
 	Token& tok = *currentToken;
@@ -553,6 +556,7 @@ std::shared_ptr<Node> Parser::for_expr()
 
 }
 
+//KEYWORD:WHILE expr THEN expr
 std::shared_ptr<Node> Parser::while_expr()
 {
 	Token& tok = *currentToken;
@@ -577,9 +581,7 @@ std::shared_ptr<Node> Parser::while_expr()
 	return std::make_shared<WhileNode>(tok, std::make_shared<Case>(cond, express));
 }
 	
-
-
-
+//Error
 std::shared_ptr<Node> Parser::throwError(std::string details)
 {
 	IllegalSyntaxError error(details, currentToken->getPosStart());

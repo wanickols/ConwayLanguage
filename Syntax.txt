@@ -1,0 +1,54 @@
+-----------------------------------
+---------- Conway Syntax ----------
+-----------------------------------
+
+    --Formatting--
+      LHS : RHS
+
+      Where ... means repeating
+      and     ? means optional
+      and 
+      EE LT GT  means == < > 
+      LTE  GTE  means <=  >=
+                
+
+---------- Keywords from atom ----------
+
+list   : LEFTBRAK : expr COMMA? expr?... RIGHTBRAK IDENTIFIER?
+
+func   : KEYWORD IDENTIFIER? LEFT PAR expr COMMA? expr?... RIGHT PAR
+
+MkAlve : KEYWORD:MakeAlive LEFT PAR list_expr RIGHT PAR
+
+IF     : KEYWORD:IF expr KEYWORD:THEN expr 
+       : KEYWORD:ELIF expr THEN expr
+       : KEYWORD:ELSE expr
+
+FOR    : KEYWORD:FOR IDENTIFIER = epxr TO expr STEP? expr? THEN expr
+
+WHILE  : KEYWORD:WHILE expr THEN expr
+
+---------- Keywords from atom ----------
+
+---------- Core ----------
+
+atom   : INT|FLOAT|IDENTIFIER 
+       : LPAREN expr RPAREN
+       : Keywords
+
+power  : atom (POW factor)
+
+factor : (PLUS|MINUS) factor
+       : power
+
+term   : factor ((MUL|DIV) factor)
+
+arith  : term ((PLUS | MINUS) term)*
+
+cmpr   : NOT cmpr_expr
+       : arith_expr (EE|LT|GT|LTE|GTE arith_expr)
+
+expr   : KEYWORD(VARIABLETYPE) IDENTIFIER EQUALS expr
+       : cmpr_expr ((KEYWORD(AND|OR_)) cmpr_expr)
+
+---------- Core ----------

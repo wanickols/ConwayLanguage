@@ -17,7 +17,7 @@ public:
 	Grid(std::shared_ptr<Number> width, std::shared_ptr<Number> height = nullptr);
 
 	//Functions
-	void makeAlive(std::shared_ptr<std::vector<List>> aliveTable);
+	void makeAlive(std::shared_ptr<std::vector<shared_ptr<List>>> aliveTable);
 	void calculateAlive();
 	void play(std::shared_ptr<Number> time);
 	void expand(Number size); //increases size by number

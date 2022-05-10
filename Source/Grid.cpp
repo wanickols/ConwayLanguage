@@ -96,11 +96,11 @@ void Grid::setWidthHeight(std::shared_ptr<Number> N_width, std::shared_ptr<Numbe
 
 }
 
-void Grid::makeAlive(std::shared_ptr<std::vector<List>> listTable)
+void Grid::makeAlive(std::shared_ptr<std::vector<shared_ptr<List>>> listTable)
 {
 
     //Size Error Check
-    if (listTable->size() > width || (!listTable->empty() && listTable->at(0).getValues() != nullptr && listTable->at(0).getValues()->size() > height))
+    if (listTable->size() > width || (!listTable->empty() && listTable->at(0)->getValues() != nullptr && listTable->at(0)->getValues()->size() > height))
     {
         CW_CORE_ERROR("Cannot Put in a List Larger than Grid");
         return;
@@ -110,8 +110,8 @@ void Grid::makeAlive(std::shared_ptr<std::vector<List>> listTable)
     try {
         for (int i = 0; i < listTable->size(); i++) {
 
-            for (int j = 0; j < listTable->at(i).getValues()->size(); j++) {
-                aliveTable->at(i).at(j) = (bool)any_cast<int>(listTable->at(i).getValues()->at(j).getValue());
+            for (int j = 0; j < listTable->at(i)->getValues()->size(); j++) {
+                aliveTable->at(i).at(j) = (bool)any_cast<int>(listTable->at(i)->getValues()->at(j).getValue());
             }
         }
     }

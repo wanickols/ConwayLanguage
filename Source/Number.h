@@ -27,6 +27,7 @@ public:
 
 	//Casting Functions
 	bool getInt(int& valueHolder);
+	bool getBool(int& valueHolder);
 	bool getString(string& valueHolder);
 	bool getList(std::shared_ptr<List>& valueHolder);
 	bool getGrid(std::shared_ptr<Grid>& gridHolder);
