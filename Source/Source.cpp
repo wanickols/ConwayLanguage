@@ -150,8 +150,6 @@ bool Init()
 void PrintRun(vector<Token>& tokens, Parser& parser)
 {
 	
-
-
 	//Printing of tokens
 	for (int i = 0; i < tokens.size(); i++)
 	{

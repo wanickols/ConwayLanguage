@@ -1,0 +1,89 @@
+-----------------------------------
+--------- Conway Commands ---------
+-----------------------------------
+
+-------- Most Important ---------
+
+This is before sematics info
+
+There is no end line symbol. 
+The enter button makes new line.
+The ? compiles. 
+As of right now, only one line can be compiled at a time. 
+
+?? Will terminate the program.
+The Esc key will not. 
+	
+---------- Declarations ----------				In this form ? means optional. Paremeters will be the Variable name spelled out
+
+
+
+-----------------------
+Integer  : Int a = 0  -
+		 : Int a      -
+-----------------------
+
+-----------------------
+String   : 'Hello'    -							There is no Variable name, the ' sets it. It cannot be stored in memory.
+					  -
+-----------------------
+
+-----------------------
+Float    : 1.5        -
+					  -
+All floats converted to ints.
+-----------------------
+
+-----------------------
+List     : [...,...]  -							Takes in any variable type sepearted by commas. 	
+					  -
+-----------------------
+
+-----------------------
+Grid     : Grid grid(Integer, Integer?)			The first int sets the width, the second the height.
+					  -							If one is entered, it is square. 
+-----------------------
+
+-----------------------------------
+--------- Conway Sematics ---------
+-----------------------------------
+
+---------- Basic Operations ----------
+Integer + Integer --> Integer
+Integer - Integer --> Integer
+Integer * Integer --> Integer
+Integer / Integer --> Integer
+Integer ^ Integer --> Integer
+
+[Integer, ...]         + Integer --> [Integer, ..., Integer] 
+[Integer 4, ...]       - Integer 4 --> [...]							This will take number specified, not index
+[Integer]               * [Integer] --> [Integer, Integer]				Concatenated not multiplied.
+[Integer 4, Integer 2]  / Integer 1 --> Integer 2						Query function based on index
+
+Integer			--> Integer
+Float			--> Integer
+String			--> String
+[...]			--> [...]
+
+Grid(10)   + 1  --> Grid(11)
+Grid(10,9) + 1  --> Grid(11,10)
+Grid(10)   - 1  --> Grid(9)
+Grid(10,9) + 1  --> Grid(9,8)
+
+---------- Statements ----------
+
+IF {expr1} THEN {expr}			 --> No output							{expr1} must evaluate to an Integer
+FOR {expr1} TO {expr} THEN {expr} --> No output							{expr1} must evaluate to an Integer
+WHILE {expr1} THEN {expr}		 --> No output							{expr1} must evaluate to an Integer
+
+---------- Functions ----------
+
+MakeAlive(Grid, List(List(Integer...))) --> Grid
+
+Delay(Grid, Integer)					--> No output
+
+Cell(String, String)					--> No Output
+
+Run(Grid, Integer)						--> Grid
+
+Clear()									--> Clears Screen

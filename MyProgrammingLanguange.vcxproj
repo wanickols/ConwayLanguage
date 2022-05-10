@@ -190,6 +190,7 @@
     <ClInclude Include="Source\Token.h" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="Semantics.txt" />
     <Text Include="Syntax.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -127,5 +127,8 @@
     <Text Include="Syntax.txt">
       <Filter>Resource Files</Filter>
     </Text>
+    <Text Include="Semantics.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
   </ItemGroup>
 </Project>
